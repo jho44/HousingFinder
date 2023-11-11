@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import getPosts from "../../lib/api/getPosts";
+import getPosts from "lib/api/getPosts";
 
 export default async function handler(
   req: NextApiRequest,
