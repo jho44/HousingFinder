@@ -1,0 +1,12 @@
+/* Chrome, Safari, Edge, Opera */
+.dropdown-price input::-webkit-outer-spin-button,
+.dropdown-price input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.dropdown-price input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

@@ -1,0 +1,83 @@
+.screenReaderOnly {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+body {
+  font-size: 16px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.dropdown-date .p-component {
+  width: 260px;
+  background: #18191a;
+}
+
+.dropdown-date .p-datepicker-header {
+  padding: 8px 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.dropdown-date .p-datepicker-prev,
+.dropdown-date .p-datepicker-next {
+  width: 35px;
+  height: 35px;
+}
+
+.dropdown-date .p-datepicker-title {
+  display: flex;
+  gap: 4px;
+}
+
+.dropdown-date .p-datepicker-calendar {
+  border-collapse: separate;
+}
+
+.dropdown-date .p-datepicker-calendar > thead {
+  border-top: 1px solid #4c5052;
+  border-bottom: 1px solid #4c5052;
+  font-size: 14px;
+}
+
+.dropdown-date th {
+  height: 37px;
+  width: 37px;
+}
+
+.dropdown-date td {
+  height: 35px;
+  width: 35px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dropdown-date td:has(.p-disabled) {
+  color: #acb1b4;
+  cursor: default;
+}
+
+.dropdown-date td:not(:has(.p-disabled)):hover {
+  border: 1px solid #A97DDB;
+}
+
+.dropdown-date td:has(.p-highlight) {
+  background: #A97DDB;
+  color: #18191a;
+}
