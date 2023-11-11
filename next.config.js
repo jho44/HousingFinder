@@ -4,15 +4,15 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/search',
+        source: "/",
+        destination: "/search",
         permanent: true,
-      }
-    ]
+      },
+    ];
   },
   experimental: {
     optimizeCss: true, // enabling this will enable SSR for Tailwind
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

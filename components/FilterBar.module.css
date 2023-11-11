@@ -6,7 +6,7 @@
 }
 
 /* Firefox */
-.dropdown-price input[type=number] {
+.dropdown-price input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }

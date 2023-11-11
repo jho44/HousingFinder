@@ -18,8 +18,8 @@ body {
 }
 
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .dropdown-date .p-component {
@@ -74,10 +74,10 @@ body {
 }
 
 .dropdown-date td:not(:has(.p-disabled)):hover {
-  border: 1px solid #A97DDB;
+  border: 1px solid #a97ddb;
 }
 
 .dropdown-date td:has(.p-highlight) {
-  background: #A97DDB;
+  background: #a97ddb;
   color: #18191a;
 }
