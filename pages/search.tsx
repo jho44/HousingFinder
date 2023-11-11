@@ -31,15 +31,16 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
   const [gender, setGender] = useState<Gender>(null);
   const debouncedLowPrice = useDebounce(lowPrice, 1000);
   const debouncedHighPrice = useDebounce(highPrice, 1000);
-  const [filteredPosts, setFilteredMsgs] = useState(allPosts);
+  const [filteredPosts, setFilteredPosts] = useState(allPosts);
   const yesterday = dayjs().subtract(1, "day").startOf("day");
-
+  const [searchBarPosts, setSearchBarPosts] = useState(allPosts);
   useEffect(() => {
     let posts: Post[] = [];
     const lowPriceNum = debouncedLowPrice ? parseInt(debouncedLowPrice, 10) : 0;
     const highPriceNum = debouncedHighPrice
       ? parseInt(debouncedHighPrice, 10)
       : Infinity;
+    const searchBarIds = new Set(searchBarPosts.map((p) => p.id));
     allPosts.forEach((post) => {
       if (
         (searchType === "searching_for" &&
@@ -47,6 +48,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
         (searchType === "offering" && post.post_type !== "offering_lease")
       )
         return;
+      if (!searchBarIds.has(post.id)) return;
       if (lowPriceNum > (post.price_range?.low ?? Infinity)) return;
       if (highPriceNum < (post.price_range?.high ?? 0)) return;
       if (post.duration?.start && moveInDate) {
@@ -65,7 +67,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
       // amenities?: string[];
       posts.push(post);
     });
-    setFilteredMsgs(posts);
+    setFilteredPosts(posts);
   }, [
     searchType,
     debouncedLowPrice,
@@ -74,6 +76,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
     moveOutDate,
     allPosts,
     gender,
+    searchBarPosts,
   ]);
 
   if (!allPosts) return <div>Loading...</div>;
@@ -88,7 +91,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
         moveInDate={moveInDate}
         moveOutDate={moveOutDate}
         gender={gender}
-        setPosts={setFilteredMsgs}
+        setPosts={setSearchBarPosts}
         setSearchType={setSearchType}
         setLowPrice={setLowPrice}
         setHighPrice={setHighPrice}

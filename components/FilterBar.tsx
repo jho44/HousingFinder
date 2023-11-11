@@ -64,8 +64,12 @@ export default function FilterBar({
 }) {
   const [input, setInput] = useState("");
   const debouncedInput = useDebounce(input, 1000);
+  const updatedPosts = useRef(true);
 
   useEffect(() => {
+    if (updatedPosts.current) return;
+    updatedPosts.current = true;
+
     if (debouncedInput) {
       setPosts(
         search(debouncedInput, posts, { keySelector: (obj) => obj.msg }),
@@ -184,7 +188,10 @@ export default function FilterBar({
             className="bg-transparent focus:outline-none"
             placeholder="Search by keyword"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              updatedPosts.current = false;
+              setInput(e.target.value);
+            }}
           />
         </div>
       </div>
