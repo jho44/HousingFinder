@@ -10,6 +10,7 @@
     "format": "prettier . --write"
   },
   "dependencies": {
+    "critters": "^0.0.20",
     "dayjs": "^1.11.10",
     "fast-fuzzy": "^1.12.0",
     "mongodb": "^6.2.0",

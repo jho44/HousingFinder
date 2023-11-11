@@ -32,7 +32,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
   const debouncedLowPrice = useDebounce(lowPrice, 1000);
   const debouncedHighPrice = useDebounce(highPrice, 1000);
   const [filteredPosts, setFilteredMsgs] = useState(allPosts);
-  if (!allPosts) return <div>Loading...</div>;
+  const yesterday = dayjs().subtract(1, "day").startOf("day");
 
   useEffect(() => {
     let posts: Post[] = [];
@@ -72,9 +72,11 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
     debouncedHighPrice,
     moveInDate,
     moveOutDate,
+    allPosts,
+    gender,
   ]);
 
-  const yesterday = dayjs().subtract(1, "day").startOf("day");
+  if (!allPosts) return <div>Loading...</div>;
   return (
     <div className={`${styles["search-section"]}`}>
       <FilterBar

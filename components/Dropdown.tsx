@@ -29,7 +29,7 @@ export default function Dropdown({
     }
 
     function handleEsc(e: KeyboardEvent) {
-      setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
     window.addEventListener("click", handleClick);
     window.addEventListener("keydown", handleEsc);
