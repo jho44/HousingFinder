@@ -94,6 +94,7 @@ const FilterBar = forwardRef(function FilterBar(
     } else setPosts(allPosts);
   }, [debouncedInput, posts, setPosts, allPosts]);
 
+  // TODO: tentatively ready to delete scrollX stuff
   const [scrollX, setScrollX] = useState(0);
   const contentEl = useRef<HTMLDivElement>(null);
   useEffect(() => {

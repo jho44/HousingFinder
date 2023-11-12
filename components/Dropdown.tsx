@@ -7,6 +7,7 @@ import {
   Dispatch,
 } from "react";
 import Image from "next/image";
+import useWindowSize from "@/hooks/useWindowSize";
 
 export default function Dropdown({
   defaultLabel,
@@ -51,20 +52,19 @@ export default function Dropdown({
     };
   }, [open, setOpen]);
 
-  const [btnBottom, setBtnBottom] = useState(0); // record of the button's bottom as window size changes
+  const [btnPos, setBtnPos] = useState({ bottom: 0, left: 0 }); // record of the button's dims as window size changes
 
   useEffect(() => {
-    const updateBtnBottom = () => {
+    const updateBtnPos = () => {
       if (dropdownBtn.current) {
-        const bottom = dropdownBtn.current.getBoundingClientRect().bottom;
-        setBtnBottom(bottom);
+        setBtnPos(dropdownBtn.current.getBoundingClientRect());
       }
     };
 
-    updateBtnBottom();
+    updateBtnPos();
 
     const handleResize = () => {
-      updateBtnBottom();
+      updateBtnPos();
     };
 
     window.addEventListener("resize", handleResize);
@@ -72,9 +72,17 @@ export default function Dropdown({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const posStyle = {
-    transform: "translateX(var(--scroll-x))",
-    top: `${btnBottom + 10}px`,
+  const windowSize = useWindowSize();
+  // if it's over the window's right edge, then move it back to the left
+  const translateX =
+    windowSize.width -
+    12 -
+    (btnPos.left + (dropdown.current?.clientWidth ?? 0));
+  const dropdownPaneStyle = {
+    // transform: "translateX(var(--scroll-x))",
+    transform: translateX < 0 ? `translateX(${translateX}px)` : undefined,
+    top: `${btnPos.bottom + 10}px`,
+    visibility: open ? ("visible" as const) : ("hidden" as const),
   };
   return (
     <div className="relative">
@@ -94,13 +102,9 @@ export default function Dropdown({
           className="w-2 min-w-[8px] h-auto"
         />
       </div>
-      {open ? (
-        <div id="boop" className="fixed z-10" style={posStyle} ref={dropdown}>
-          {open ? children : <></>}
-        </div>
-      ) : (
-        <></>
-      )}
+      <div className="fixed z-10" style={dropdownPaneStyle} ref={dropdown}>
+        {children}
+      </div>
     </div>
   );
 }
