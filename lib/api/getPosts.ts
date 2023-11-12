@@ -1,4 +1,4 @@
-import { collection } from './mongo.ts';
+import { collection } from "./mongo.ts";
 
 const PAGE_SIZE = 20;
 export default async function getPosts(pageNum: number) {
@@ -9,6 +9,6 @@ export default async function getPosts(pageNum: number) {
     .skip(pageNum * PAGE_SIZE)
     .project({
       _id: 0,
-    })
+    });
   return await query.toArray();
 }

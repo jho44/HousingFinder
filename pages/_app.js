@@ -9,7 +9,9 @@ const roboto = Roboto({
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <main className={`${roboto.className} h-screen bg-dark-950 text-dark-100`}>
+    <main
+      className={`${roboto.className} overflow-y-hidden h-screen bg-dark-950 text-dark-100`}
+    >
       <Component {...pageProps} />
     </main>
   );

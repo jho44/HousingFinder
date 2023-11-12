@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import getPosts from "../lib/api/getPosts";
 
@@ -22,7 +22,7 @@ export async function getServerSideProps() {
   return { props: { allPosts: serializablePosts } };
 }
 
-export default function Home({ allPosts }: { allPosts: Post[] }) {
+export default function Search({ allPosts }: { allPosts: Post[] }) {
   const [searchType, setSearchType] = useState("all");
   const [lowPrice, setLowPrice] = useState("");
   const [highPrice, setHighPrice] = useState("");
@@ -34,6 +34,28 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
   const [filteredPosts, setFilteredPosts] = useState(allPosts);
   const yesterday = dayjs().subtract(1, "day").startOf("day");
   const [searchBarPosts, setSearchBarPosts] = useState(allPosts);
+  const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
+  const filterBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateContainerHeight = () => {
+      if (filterBarRef.current) {
+        const height = filterBarRef.current.clientHeight;
+        setFilterBarHeight(height);
+      }
+    };
+
+    updateContainerHeight();
+
+    const handleResize = () => {
+      updateContainerHeight();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     let posts: Post[] = [];
     const lowPriceNum = debouncedLowPrice ? parseInt(debouncedLowPrice, 10) : 0;
@@ -81,8 +103,9 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
 
   if (!allPosts) return <div>Loading...</div>;
   return (
-    <div className={`${styles["search-section"]}`}>
+    <div className={`${styles["search-section"]} h-full overflow-y-scroll`}>
       <FilterBar
+        ref={filterBarRef}
         allPosts={allPosts}
         posts={filteredPosts}
         lowPrice={lowPrice}
@@ -99,7 +122,10 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
         setMoveOutDate={setMoveOutDate}
         setGender={setGender}
       />
-      <div className="flex flex-col items-center px-4 pb-4 gap-4 pt-[calc(var(--bar-height)+16px)]">
+      <div
+        className="flex flex-col items-center px-4 pb-4 gap-4"
+        style={{ paddingTop: `calc(${filterBarHeight}px + 16px)` }}
+      >
         {filteredPosts.length ? (
           filteredPosts.map((post) => {
             const [grpId, postId] = post.id.split("_");
@@ -110,8 +136,7 @@ export default function Home({ allPosts }: { allPosts: Post[] }) {
                 key={post.id}
                 className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-[680px] bg-dark-900"
               >
-                <div className="flex justify-between items-center">
-                  {/* "flex flex-row-reverse gap-2.5 " */}
+                <div className="flex flex-col gap-0.5">
                   <a
                     href={ogPostLink}
                     className="font-bold w-fit"

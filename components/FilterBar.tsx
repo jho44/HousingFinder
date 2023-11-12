@@ -1,4 +1,13 @@
-import { Dispatch, SetStateAction, useState, useEffect, useRef } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  ForwardedRef,
+  Fragment,
+} from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
 import { search } from "fast-fuzzy";
@@ -28,40 +37,42 @@ const genderLabels = [
   { id: "female", label: "Female" },
   { id: "male", label: "Male" },
 ];
-
-export default function FilterBar({
-  allPosts,
-  posts,
-  lowPrice,
-  highPrice,
-  searchType,
-  moveInDate,
-  moveOutDate,
-  gender,
-  setPosts,
-  setSearchType,
-  setLowPrice,
-  setHighPrice,
-  setMoveInDate,
-  setMoveOutDate,
-  setGender,
-}: {
-  allPosts: Post[];
-  posts: Post[];
-  lowPrice: string;
-  highPrice: string;
-  searchType: string;
-  moveInDate: MoveDate;
-  moveOutDate: MoveDate;
-  gender: Gender;
-  setPosts: Dispatch<SetStateAction<Post[]>>;
-  setSearchType: Dispatch<SetStateAction<string>>;
-  setLowPrice: Dispatch<SetStateAction<string>>;
-  setHighPrice: Dispatch<SetStateAction<string>>;
-  setMoveInDate: Dispatch<SetStateAction<MoveDate>>;
-  setMoveOutDate: Dispatch<SetStateAction<MoveDate>>;
-  setGender: Dispatch<SetStateAction<Gender>>;
-}) {
+const FilterBar = forwardRef(function FilterBar(
+  {
+    allPosts,
+    posts,
+    lowPrice,
+    highPrice,
+    searchType,
+    moveInDate,
+    moveOutDate,
+    gender,
+    setPosts,
+    setSearchType,
+    setLowPrice,
+    setHighPrice,
+    setMoveInDate,
+    setMoveOutDate,
+    setGender,
+  }: {
+    allPosts: Post[];
+    posts: Post[];
+    lowPrice: string;
+    highPrice: string;
+    searchType: string;
+    moveInDate: MoveDate;
+    moveOutDate: MoveDate;
+    gender: Gender;
+    setPosts: Dispatch<SetStateAction<Post[]>>;
+    setSearchType: Dispatch<SetStateAction<string>>;
+    setLowPrice: Dispatch<SetStateAction<string>>;
+    setHighPrice: Dispatch<SetStateAction<string>>;
+    setMoveInDate: Dispatch<SetStateAction<MoveDate>>;
+    setMoveOutDate: Dispatch<SetStateAction<MoveDate>>;
+    setGender: Dispatch<SetStateAction<Gender>>;
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
   const [input, setInput] = useState("");
   const debouncedInput = useDebounce(input, 1000);
   const updatedPosts = useRef(true);
@@ -96,12 +107,63 @@ export default function FilterBar({
     "--scroll-x": `-${scrollX}px`,
   } as React.CSSProperties;
 
+  const filters = [
+    {
+      id: "search-type",
+      label: "Search Type",
+      value: searchType,
+    },
+    {
+      id: "low-price",
+      label: "Low Price",
+      value: lowPrice,
+    },
+    {
+      id: "high-price",
+      label: "High Price",
+      value: highPrice,
+    },
+    {
+      id: "move-in-date",
+      label: "Move-in Date",
+      value: moveInDate?.format("DD/MM"),
+    },
+    {
+      id: "move-out-date",
+      label: "Move-out Date",
+      value: moveOutDate?.format("DD/MM"),
+    },
+    {
+      id: "gender",
+      label: "Gender",
+      value: gender,
+    },
+  ];
+
   return (
-    <div className="fixed w-screen" style={barStyles}>
-      <div
-        ref={contentEl}
-        className="h-[--bar-height] z-10 flex bg-dark-950 py-2.5 px-3 gap-3 border-b-[1px] border-b-dark-700 overflow-x-scroll hide-scrollbar"
-      >
+    <div
+      ref={ref}
+      className="fixed w-screen bg-dark-950 border-b-[1px] border-b-dark-700 flex flex-col py-2.5 px-3 gap-3"
+      style={barStyles}
+    >
+      <div ref={contentEl} className="flex gap-3 flex-wrap">
+        <div className="flex items-center gap-2 px-3 rounded-[50px] bg-dark-700 text-dark-200">
+          <Image
+            src="/icons/magnifying-glass.svg"
+            height={20}
+            width={20}
+            alt="Search bar icon"
+          />
+          <input
+            className="bg-transparent focus:outline-none"
+            placeholder="Search by keyword"
+            value={input}
+            onChange={(e) => {
+              updatedPosts.current = false;
+              setInput(e.target.value);
+            }}
+          />
+        </div>
         <Dropdown defaultLabel="price">
           <div
             className={`${styles["dropdown-price"]} shadow-lg shadow-dark-700 flex gap-1 items-center w-[320px] p-2 bg-dark-950`}
@@ -177,24 +239,38 @@ export default function FilterBar({
             />
           </div>
         </Dropdown>
-        <div className="flex items-center gap-2 px-3 rounded-[50px] bg-dark-700 text-dark-200">
-          <Image
-            src="/icons/magnifying-glass.svg"
-            height={20}
-            width={20}
-            alt="Search bar icon"
-          />
-          <input
-            className="bg-transparent focus:outline-none"
-            placeholder="Search by keyword"
-            value={input}
-            onChange={(e) => {
-              updatedPosts.current = false;
-              setInput(e.target.value);
-            }}
-          />
-        </div>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        <label className="text-dark-300">Filters:</label>
+        {filters.map((f) =>
+          f.value ? (
+            <div
+              key={f.id}
+              className="group whitespace-nowrap flex items-center gap-2 cursor-pointer rounded-lg bg-bright-400 hover:bg-bright-300 items-center py-1.5 px-3 text-dark-950 hover:text-bright-950"
+              // onClick={() => }
+            >
+              {f.label}: {f.value}
+              {f.id === "search-type" ? (
+                <></>
+              ) : (
+                <div className="flex justify-center items-center w-3.5 h-3.5 rounded-full bg-dark-950 group-hover:bg-bright-950">
+                  <Image
+                    src="/icons/close.svg"
+                    height={6}
+                    width={6}
+                    alt="Remove filter"
+                    className="min-w-[4px]"
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <Fragment key={f.id} />
+          ),
+        )}
       </div>
     </div>
   );
-}
+});
+
+export default FilterBar;
