@@ -1,14 +1,24 @@
-import { useState, ReactNode, useEffect, useRef } from "react";
+import {
+  useState,
+  ReactNode,
+  useEffect,
+  useRef,
+  SetStateAction,
+  Dispatch,
+} from "react";
 import Image from "next/image";
 
 export default function Dropdown({
   defaultLabel,
+  open,
+  setOpen,
   children,
 }: {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   defaultLabel: string;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
   const dropdown = useRef<HTMLDivElement>(null);
   const dropdownBtn = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -22,7 +32,8 @@ export default function Dropdown({
           !dropdownBtn.current?.contains(target) &&
           !target.classList.value.includes("datepicker") &&
           (target.nodeName !== "path" ||
-            !target.parentElement?.classList.value.includes("datepicker")))
+            !target.parentElement?.classList.value.includes("datepicker")) &&
+          !target.id.endsWith("-filter-btn"))
       ) {
         setOpen(false);
       }
@@ -38,10 +49,32 @@ export default function Dropdown({
       window.removeEventListener("click", handleClick);
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [open]);
+  }, [open, setOpen]);
 
-  const leftPosStyle = {
+  const [btnBottom, setBtnBottom] = useState(0); // record of the button's bottom as window size changes
+
+  useEffect(() => {
+    const updateBtnBottom = () => {
+      if (dropdownBtn.current) {
+        const bottom = dropdownBtn.current.getBoundingClientRect().bottom;
+        setBtnBottom(bottom);
+      }
+    };
+
+    updateBtnBottom();
+
+    const handleResize = () => {
+      updateBtnBottom();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const posStyle = {
     transform: "translateX(var(--scroll-x))",
+    top: `${btnBottom + 10}px`,
   };
   return (
     <div className="relative">
@@ -61,13 +94,13 @@ export default function Dropdown({
           className="w-2 min-w-[8px] h-auto"
         />
       </div>
-      <div
-        className="fixed top-[--bar-height]"
-        style={leftPosStyle}
-        ref={dropdown}
-      >
-        {open ? children : <></>}
-      </div>
+      {open ? (
+        <div id="boop" className="fixed z-10" style={posStyle} ref={dropdown}>
+          {open ? children : <></>}
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

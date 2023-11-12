@@ -77,6 +77,12 @@ const FilterBar = forwardRef(function FilterBar(
   const debouncedInput = useDebounce(input, 1000);
   const updatedPosts = useRef(true);
 
+  const [searchTypeOpen, setSearchTypeOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [moveInOpen, setMoveInOpen] = useState(false);
+  const [moveOutOpen, setMoveOutOpen] = useState(false);
+  const [genderOpen, setGenderOpen] = useState(false);
+
   useEffect(() => {
     if (updatedPosts.current) return;
     updatedPosts.current = true;
@@ -112,31 +118,42 @@ const FilterBar = forwardRef(function FilterBar(
       id: "search-type",
       label: "Search Type",
       value: searchType,
+      toggleFunc: setSearchTypeOpen,
     },
     {
       id: "low-price",
       label: "Low Price",
       value: lowPrice,
+      toggleFunc: setPriceOpen,
+      empty: () => setLowPrice(""),
     },
     {
       id: "high-price",
       label: "High Price",
       value: highPrice,
+      toggleFunc: setPriceOpen,
+      empty: () => setHighPrice(""),
     },
     {
       id: "move-in-date",
       label: "Move-in Date",
       value: moveInDate?.format("DD/MM"),
+      toggleFunc: setMoveInOpen,
+      empty: () => setMoveInDate(null),
     },
     {
       id: "move-out-date",
       label: "Move-out Date",
       value: moveOutDate?.format("DD/MM"),
+      toggleFunc: setMoveOutOpen,
+      empty: () => setMoveOutDate(null),
     },
     {
       id: "gender",
       label: "Gender",
       value: gender,
+      toggleFunc: setGenderOpen,
+      empty: () => setGender(null),
     },
   ];
 
@@ -164,7 +181,7 @@ const FilterBar = forwardRef(function FilterBar(
             }}
           />
         </div>
-        <Dropdown defaultLabel="price">
+        <Dropdown open={priceOpen} setOpen={setPriceOpen} defaultLabel="price">
           <div
             className={`${styles["dropdown-price"]} shadow-lg shadow-dark-700 flex gap-1 items-center w-[320px] p-2 bg-dark-950`}
           >
@@ -201,7 +218,11 @@ const FilterBar = forwardRef(function FilterBar(
             </fieldset>
           </div>
         </Dropdown>
-        <Dropdown defaultLabel="type">
+        <Dropdown
+          open={searchTypeOpen}
+          setOpen={setSearchTypeOpen}
+          defaultLabel="type"
+        >
           <div className="gap-2 shadow-[0_0_3px_0_white] shadow-dark-700 flex flex-col w-[222px] bg-dark-950 p-2">
             <TypeDropdownPane
               types={searchTypeLabels}
@@ -210,7 +231,11 @@ const FilterBar = forwardRef(function FilterBar(
             />
           </div>
         </Dropdown>
-        <Dropdown defaultLabel="move-in date">
+        <Dropdown
+          open={moveInOpen}
+          setOpen={setMoveInOpen}
+          defaultLabel="move-in date"
+        >
           <div className="dropdown-date shadow-[0_0_3px_0_white] shadow-dark-700">
             <Calendar
               value={moveInDate?.toDate()}
@@ -220,7 +245,11 @@ const FilterBar = forwardRef(function FilterBar(
             />
           </div>
         </Dropdown>
-        <Dropdown defaultLabel="move-out date">
+        <Dropdown
+          open={moveOutOpen}
+          setOpen={setMoveOutOpen}
+          defaultLabel="move-out date"
+        >
           <div className="dropdown-date shadow-[0_0_3px_0_white] shadow-dark-700">
             <Calendar
               value={moveOutDate?.toDate()}
@@ -230,7 +259,11 @@ const FilterBar = forwardRef(function FilterBar(
             />
           </div>
         </Dropdown>
-        <Dropdown defaultLabel="gender">
+        <Dropdown
+          open={genderOpen}
+          setOpen={setGenderOpen}
+          defaultLabel="gender"
+        >
           <div className="gap-2 shadow-[0_0_3px_0_white] shadow-dark-700 flex flex-col w-[222px] bg-dark-950 p-2">
             <TypeDropdownPane
               types={genderLabels}
@@ -245,15 +278,19 @@ const FilterBar = forwardRef(function FilterBar(
         {filters.map((f) =>
           f.value ? (
             <div
+              id={`${f.id}-filter-btn`}
               key={f.id}
               className="group whitespace-nowrap flex items-center gap-2 cursor-pointer rounded-lg bg-bright-400 hover:bg-bright-300 items-center py-1.5 px-3 text-dark-950 hover:text-bright-950"
-              // onClick={() => }
+              onClick={() => f.toggleFunc((o) => !o)}
             >
               {f.label}: {f.value}
               {f.id === "search-type" ? (
                 <></>
               ) : (
-                <div className="flex justify-center items-center w-3.5 h-3.5 rounded-full bg-dark-950 group-hover:bg-bright-950">
+                <div
+                  className="flex justify-center items-center w-3.5 h-3.5 rounded-full bg-dark-950 group-hover:bg-bright-950"
+                  onClick={f.empty}
+                >
                   <Image
                     src="/icons/close.svg"
                     height={6}
