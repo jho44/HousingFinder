@@ -138,14 +138,14 @@ const FilterBar = forwardRef(function FilterBar(
     {
       id: "move-in-date",
       label: "Move-in Date",
-      value: moveInDate?.format("DD/MM"),
+      value: moveInDate?.format("MM/DD"),
       toggleFunc: setMoveInOpen,
       empty: () => setMoveInDate(null),
     },
     {
       id: "move-out-date",
       label: "Move-out Date",
-      value: moveOutDate?.format("DD/MM"),
+      value: moveOutDate?.format("MM/DD"),
       toggleFunc: setMoveOutOpen,
       empty: () => setMoveOutDate(null),
     },
