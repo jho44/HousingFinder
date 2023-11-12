@@ -191,7 +191,7 @@ const FilterBar = forwardRef(function FilterBar(
                 minimum Rent Input
               </label>
               <input
-                className="bg-dark-700 text-dark-200 placeholder:text-dark-400 outline-none border-2 border-dark-700 focus:border-dark-600 shadow shadow-dark-600 w-full p-2 h-[40px] rounded-lg"
+                className="bg-dark-700 text-dark-200 outline-none border-2 border-dark-700 focus:border-dark-600 shadow shadow-dark-600 w-full p-2 h-[40px] rounded-lg"
                 id="min-input"
                 maxLength={6}
                 type="number"
@@ -207,7 +207,7 @@ const FilterBar = forwardRef(function FilterBar(
                 maximum Rent Input
               </label>
               <input
-                className="bg-dark-700 text-dark-200 placeholder:text-dark-400 outline-none border-2 border-dark-700 focus:border-dark-600 shadow shadow-dark-600 w-full p-2 h-[40px] rounded-lg"
+                className="bg-dark-700 text-dark-200 outline-none border-2 border-dark-700 focus:border-dark-600 shadow shadow-dark-600 w-full p-2 h-[40px] rounded-lg"
                 id="max-input"
                 maxLength={6}
                 type="number"

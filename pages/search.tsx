@@ -37,19 +37,23 @@ export default function Search({ allPosts }: { allPosts: Post[] }) {
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
 
+  const updateFilterBarHeight = () => {
+    if (filterBarRef.current) {
+      const height = filterBarRef.current.clientHeight;
+      setFilterBarHeight(height);
+    }
+  };
+
   useEffect(() => {
-    const updateContainerHeight = () => {
-      if (filterBarRef.current) {
-        const height = filterBarRef.current.clientHeight;
-        setFilterBarHeight(height);
-      }
-    };
+    updateFilterBarHeight();
+  }, [searchType, lowPrice, highPrice, moveInDate, moveOutDate, gender]);
 
-    updateContainerHeight();
-
+  useEffect(() => {
     const handleResize = () => {
-      updateContainerHeight();
+      updateFilterBarHeight();
     };
+
+    updateFilterBarHeight();
 
     window.addEventListener("resize", handleResize);
 
