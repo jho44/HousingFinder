@@ -6,13 +6,13 @@ const { OPENAI_API_KEY } = process.env;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 export async function extractEntitiesFromPost({
-  id,
-  message,
-  updated_time,
+  postID: id,
+  post: message,
+  updated: updated_time,
 }: {
-  id: string;
-  message: string;
-  updated_time: string;
+  postID: string;
+  post: string;
+  updated: string;
 }) {
   const t0 = performance.now();
   // price, duration, amenities, commute_distance to UCLA, pets_policy, desired_gender, type of post, and location of the lease?
