@@ -8,16 +8,16 @@ const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 export async function extractEntitiesFromPost({
   postID: id,
   post: message,
-  updated: updated_time,
+  created: created_time,
 }: {
   postID: string;
   post: string;
-  updated: string;
+  created: string;
 }) {
   const t0 = performance.now();
   // price, duration, amenities, commute_distance to UCLA, pets_policy, desired_gender, type of post, and location of the lease?
   const task =
-    trimWhitespaceOnAllLines(`This was posted in the UCLA Housing Group on ${updated_time}. What entities can you extract from it?
+    trimWhitespaceOnAllLines(`This was posted in the San Francisco Housing Group on ${created_time}. What entities can you extract from it?
   Note: if the post mentions "asap" then utilitize the datetime it was posted.
   
   ${message}`);
@@ -83,11 +83,11 @@ export async function extractEntitiesFromPost({
               ],
             },
           },
-          commute_walkable: {
-            type: "string",
-            description: "whether the lease is within walking distance of UCLA",
-            enum: ["walking", "beyond_walking"],
-          },
+          // commute_walkable: {
+          //   type: "string",
+          //   description: "whether the lease is within walking distance of UCLA",
+          //   enum: ["walking", "beyond_walking"],
+          // },
           desired_gender: { type: "string", enum: ["male", "female"] },
           post_type: {
             type: "string",
@@ -118,9 +118,10 @@ export async function extractEntitiesFromPost({
     throw new Error(JSON.stringify(responseMessage));
   }
   const res = JSON.parse(responseMessage.function_call?.arguments);
-  if (res.amenities && res.commute_walkable === "walking")
-    res.amenities.push("walkable");
-  else if (!res.amenities) res.amenities = ["walkable"];
+  if (res.commute_walkable === "walking") {
+    if (res.amenities) res.amenities.push("walkable");
+    else res.amenities = ["walkable"];
+  }
   delete res.commute_walkable;
   return res;
 }

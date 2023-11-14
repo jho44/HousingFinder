@@ -7,7 +7,11 @@ export type Gender = "male" | "female" | null;
 export type Post = {
   id: string;
   msg: string;
-  updated_at: string;
+  created_at: string;
+  author: {
+    name: string;
+    id: string;
+  };
   post_type: "searching_for_lease" | "offering_lease";
   duration?: {
     start?: string;

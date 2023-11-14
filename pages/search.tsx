@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import dayjs from "dayjs";
-import getPosts from "../lib/api/getPosts";
+import getPosts from "@/lib/api/getPosts";
+import { PAGE_SIZE, GRP_ID } from "@/lib/constants";
+import { convertToDate, isWithin16Days } from "@/lib/utils";
 
 import FilterBar from "../components/FilterBar";
 
 import styles from "../components/SearchSection.module.css";
 
 import { useDebounce } from "../hooks/useDebounce";
-import { convertToDate, isWithin16Days } from "../lib/utils";
 import { Gender, MoveDate, Post } from "../types";
 
 // This gets called on every request
@@ -15,14 +17,14 @@ export async function getServerSideProps() {
   const posts = await getPosts(0);
   const serializablePosts = posts.map((post) => ({
     ...post,
-    updated_at: post.updated_at.toISOString(),
+    created_at: post.created_at.toISOString(),
   }));
 
   // Pass data to the page via props
-  return { props: { allPosts: serializablePosts } };
+  return { props: { firstPagePosts: serializablePosts } };
 }
 
-export default function Search({ allPosts }: { allPosts: Post[] }) {
+export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const [searchType, setSearchType] = useState("all");
   const [lowPrice, setLowPrice] = useState("");
   const [highPrice, setHighPrice] = useState("");
@@ -31,6 +33,7 @@ export default function Search({ allPosts }: { allPosts: Post[] }) {
   const [gender, setGender] = useState<Gender>(null);
   const debouncedLowPrice = useDebounce(lowPrice, 1000);
   const debouncedHighPrice = useDebounce(highPrice, 1000);
+  const [allPosts, setAllPosts] = useState(firstPagePosts);
   const [filteredPosts, setFilteredPosts] = useState(allPosts);
   const yesterday = dayjs().subtract(1, "day").startOf("day");
   const [searchBarPosts, setSearchBarPosts] = useState(allPosts);
@@ -105,9 +108,50 @@ export default function Search({ allPosts }: { allPosts: Post[] }) {
     searchBarPosts,
   ]);
 
+  const contentEl = useRef<HTMLDivElement>(null);
+  const scrolledToLastPage = allPosts.length % PAGE_SIZE > 0;
+  const pageNum = useRef(0);
+  useEffect(() => {
+    const currContentEl = contentEl.current;
+    if (!currContentEl) return;
+    const handleScroll = async (e: Event) => {
+      if (e.currentTarget instanceof HTMLDivElement) {
+        if (
+          e.currentTarget.scrollTop ===
+          e.currentTarget.scrollHeight - e.currentTarget.offsetHeight
+        ) {
+          // at btm of feed
+          if (scrolledToLastPage) return;
+          pageNum.current = pageNum.current + 1;
+          const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
+          const newPosts = (await res.json()) as Post[];
+          const newPostsSerialized = newPosts.map((post) => ({
+            ...post,
+            created_at: new Date(post.created_at).toISOString(),
+          })) as Post[];
+          setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
+          setFilteredPosts((prevPosts) => [
+            ...prevPosts,
+            ...newPostsSerialized,
+          ]);
+          setSearchBarPosts((prevPosts) => [
+            ...prevPosts,
+            ...newPostsSerialized,
+          ]);
+        }
+      }
+    };
+
+    currContentEl.addEventListener("scroll", handleScroll);
+    return () => currContentEl.removeEventListener("scroll", handleScroll);
+  }, [allPosts, scrolledToLastPage, filteredPosts]);
+
   if (!allPosts) return <div>Loading...</div>;
   return (
-    <div className={`${styles["search-section"]} h-full overflow-y-scroll`}>
+    <div
+      className={`${styles["search-section"]} h-full overflow-y-scroll`}
+      ref={contentEl}
+    >
       <FilterBar
         ref={filterBarRef}
         allPosts={allPosts}
@@ -132,31 +176,44 @@ export default function Search({ allPosts }: { allPosts: Post[] }) {
       >
         {filteredPosts.length ? (
           filteredPosts.map((post) => {
-            const [grpId, postId] = post.id.split("_");
-            const updatedDatetime = dayjs(post.updated_at);
-            const ogPostLink = `https://www.facebook.com/groups/${grpId}/posts/${postId}/`;
+            const postId = post.id;
+            const createdDatetime = dayjs(post.created_at);
+            const ogPostLink = `https://www.facebook.com/groups/${GRP_ID}/posts/${postId}/`;
             return (
               <div
                 key={post.id}
                 className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-[680px] bg-dark-900"
               >
-                <div className="flex flex-col gap-0.5">
-                  <a
-                    href={ogPostLink}
-                    className="font-bold w-fit"
-                    target="_blank"
-                  >
-                    Original post
-                  </a>
-                  <a
-                    href={ogPostLink}
-                    className="w-fit text-sm text-dark-300"
-                    target="_blank"
-                  >
-                    {updatedDatetime.isBefore(yesterday)
-                      ? dayjs(post.updated_at).format("MMM D")
-                      : dayjs(post.updated_at).format("MMM D [at] h:mm A")}
-                  </a>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-0.5">
+                    <a
+                      href={`https://www.facebook.com/${post.author.id}`}
+                      className="font-bold w-fit"
+                      target="_blank"
+                    >
+                      {post.author.name}
+                    </a>
+                    <a
+                      href={ogPostLink}
+                      className="w-fit text-sm text-dark-300"
+                      target="_blank"
+                    >
+                      {createdDatetime.isBefore(yesterday)
+                        ? dayjs(post.created_at).format("MMM D")
+                        : dayjs(post.created_at).format("MMM D [at] h:mm A")}
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-center cursor-pointer w-9 h-9 rounded-full hover:bg-dark-700">
+                    <a href={ogPostLink} target="_blank">
+                      <Image
+                        src="/icons/another-tab.svg"
+                        height={0}
+                        width={0}
+                        alt={"Original post"}
+                        className="w-5 min-w-[20px] h-auto"
+                      />
+                    </a>
+                  </div>
                 </div>
                 {post.msg}
               </div>
@@ -164,6 +221,11 @@ export default function Search({ allPosts }: { allPosts: Post[] }) {
           })
         ) : (
           <p className="text-dark-200 text-lg">No posts available</p>
+        )}
+        {scrolledToLastPage ? (
+          <p className="text-dark-200 text-lg">No more posts</p>
+        ) : (
+          <></>
         )}
       </div>
     </div>

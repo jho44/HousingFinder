@@ -1,6 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { extractEntitiesFromPost } from "@/lib/api/llm.ts";
-import { bayAreaCollection } from "@/lib/api/mongo.ts";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -9,6 +7,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<string>,
 ) {
+  console.log(req.headers);
   const body = req.body;
   if (body.type === "comments") {
     res.send("ok");
@@ -26,7 +25,6 @@ ${JSON.stringify(body)}
     authorFacebookID,
     updated,
   } = body;
-  const logMetadata = { id };
   const doc = {
     id,
     msg,
@@ -36,20 +34,6 @@ ${JSON.stringify(body)}
       id: authorFacebookID,
     },
   };
-
-  try {
-    Object.assign(doc, await extractEntitiesFromPost(body));
-  } catch (err) {
-    // TODO: retries?
-    console.error("Failed to extract entities from post", body, err);
-    return;
-  }
-
-  try {
-    console.log(logMetadata, `Inserting ${JSON.stringify(doc)}`);
-    await bayAreaCollection.insertOne(doc);
-  } catch (err) {
-    console.error(logMetadata, `Failed to insert ${JSON.stringify(doc)}`, err);
-  }
+  console.log(doc);
   res.send("ok");
 }
