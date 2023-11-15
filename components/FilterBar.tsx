@@ -161,7 +161,7 @@ const FilterBar = forwardRef(function FilterBar(
   return (
     <div
       ref={ref}
-      className="fixed w-screen bg-dark-950 border-b-[1px] border-b-dark-700 flex flex-col py-2.5 px-3 gap-3"
+      className="z-10 fixed w-screen bg-dark-950 border-b-[1px] border-b-dark-700 flex flex-col py-2.5 px-3 gap-3"
       style={barStyles}
     >
       <div ref={contentEl} className="flex gap-3 flex-wrap">
