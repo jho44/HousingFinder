@@ -10,7 +10,8 @@ export type Post = {
   created_at: string;
   author: {
     name: string;
-    id: string;
+    id: string | null;
+    profileImgUrl: string;
   };
   post_type: "searching_for_lease" | "offering_lease";
   duration?: {

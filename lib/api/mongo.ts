@@ -16,5 +16,5 @@ export async function connectToMongo() {
 
 export const db = mongoClient.db("UclaHousing");
 export const collection = db.collection("ExtractedEntities");
-export const bayAreaCollection = db.collection("BayAreaEntities");
 export const sfCollection = db.collection("SFEntities");
+export const sfCollection2 = db.collection("SFEntities2");

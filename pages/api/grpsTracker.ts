@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { extractEntitiesFromPost } from "@/lib/api/llm.ts";
-import { bayAreaCollection } from "@/lib/api/mongo.ts";
+import { sfCollection } from "@/lib/api/mongo.ts";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
@@ -47,7 +47,7 @@ ${JSON.stringify(body)}
 
   try {
     console.log(logMetadata, `Inserting ${JSON.stringify(doc)}`);
-    await bayAreaCollection.insertOne(doc);
+    await sfCollection.insertOne(doc);
   } catch (err) {
     console.error(logMetadata, `Failed to insert ${JSON.stringify(doc)}`, err);
   }

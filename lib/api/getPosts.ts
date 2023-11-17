@@ -1,8 +1,8 @@
-import { sfCollection } from "./mongo.ts";
+import { sfCollection2 } from "./mongo.ts";
 import { PAGE_SIZE } from "@/lib/constants";
 
 export default async function getPosts(pageNum: number) {
-  const query = sfCollection
+  const query = sfCollection2
     .find({})
     .sort({ created_at: -1 })
     .limit(PAGE_SIZE)

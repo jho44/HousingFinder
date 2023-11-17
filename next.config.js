@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "scontent-lax3-*.xx.fbcdn.net",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
   async headers() {
     return [
       {

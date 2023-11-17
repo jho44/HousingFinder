@@ -182,26 +182,54 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
             return (
               <div
                 key={post.id}
-                className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-[680px] bg-dark-900"
+                className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-full break-words sm:max-w-[680px] bg-dark-900"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-0.5">
-                    <a
-                      href={`https://www.facebook.com/${post.author.id}`}
-                      className="font-bold w-fit"
-                      target="_blank"
-                    >
-                      {post.author.name}
-                    </a>
-                    <a
-                      href={ogPostLink}
-                      className="w-fit text-sm text-dark-300"
-                      target="_blank"
-                    >
-                      {createdDatetime.isBefore(yesterday)
-                        ? dayjs(post.created_at).format("MMM D")
-                        : dayjs(post.created_at).format("MMM D [at] h:mm A")}
-                    </a>
+                  <div className="flex items-center gap-2">
+                    {post.author.id ? (
+                      <a
+                        href={`https://www.facebook.com/${post.author.id}`}
+                        target="_blank"
+                      >
+                        <Image
+                          src={post.author.profileImgUrl}
+                          alt={`${post.author.name} profile image`}
+                          height={40}
+                          width={40}
+                          className="rounded-full w-10 h-10"
+                        />
+                      </a>
+                    ) : (
+                      <Image
+                        src={post.author.profileImgUrl}
+                        alt={`${post.author.name} profile image`}
+                        height={40}
+                        width={40}
+                        className="rounded-full w-10 h-10"
+                      />
+                    )}
+                    <div className="flex flex-col gap-0.5">
+                      {post.author.id ? (
+                        <a
+                          href={`https://www.facebook.com/${post.author.id}`}
+                          className="font-bold w-fit"
+                          target="_blank"
+                        >
+                          {post.author.name}
+                        </a>
+                      ) : (
+                        <p className="font-bold">{post.author.name}</p>
+                      )}
+                      <a
+                        href={ogPostLink}
+                        className="w-fit text-sm text-dark-300"
+                        target="_blank"
+                      >
+                        {createdDatetime.isBefore(yesterday)
+                          ? dayjs(post.created_at).format("MMM D")
+                          : dayjs(post.created_at).format("MMM D [at] h:mm A")}
+                      </a>
+                    </div>
                   </div>
                   <div className="flex items-center justify-center cursor-pointer w-9 h-9 rounded-full hover:bg-dark-700">
                     <a href={ogPostLink} target="_blank">
