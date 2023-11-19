@@ -11,11 +11,11 @@ import {
 import Image from "next/image";
 import dayjs from "dayjs";
 import { search } from "fast-fuzzy";
-import Dropdown from "./Dropdown";
-import TypeDropdownPane from "./TypeDropdownPane";
-import { useDebounce } from "../hooks/useDebounce";
+import Dropdown from "../Dropdowns/Dropdown";
+import TypeDropdownPane from "../Dropdowns/TypeDropdownPane";
+import { useDebounce } from "../../hooks/useDebounce";
 import styles from "./FilterBar.module.css";
-import type { MoveDate, Gender, Post } from "../types";
+import type { MoveDate, Gender, Post } from "../../types";
 
 import { Calendar } from "primereact/calendar";
 

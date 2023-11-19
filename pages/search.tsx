@@ -5,8 +5,8 @@ import getPosts from "@/lib/api/getPosts";
 import { PAGE_SIZE, GRP_ID } from "@/lib/constants";
 import { convertToDate, isWithin16Days } from "@/lib/utils";
 
-import FilterBar from "../components/FilterBar";
-import Spinner from "../components/Spinner";
+import FilterBar from "../components/FilterBar/FilterBar";
+import Spinner from "../components/Spinner/Spinner";
 
 import styles from "../components/SearchSection.module.css";
 
