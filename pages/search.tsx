@@ -122,7 +122,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
           e.currentTarget.scrollHeight - e.currentTarget.offsetHeight
         ) {
           // at btm of feed
-          if (scrolledToLastPage) return;
+          if (scrolledToLastPage || loadingMorePosts) return;
           setLoadingMorePosts(true);
           pageNum.current = pageNum.current + 1;
           const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
@@ -147,7 +147,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
 
     currContentEl.addEventListener("scroll", handleScroll);
     return () => currContentEl.removeEventListener("scroll", handleScroll);
-  }, [allPosts, scrolledToLastPage, filteredPosts]);
+  }, [allPosts, scrolledToLastPage, filteredPosts, loadingMorePosts]);
 
   if (!allPosts) return <div>Loading...</div>;
   return (
