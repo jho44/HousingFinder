@@ -13,13 +13,13 @@ const barlow = Barlow({
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center py-[10%] px-[5%] h-full overflow-y-scroll gap-[10%]">
+    <div className="flex flex-col items-center py-[15%] sm:py-[10%] px-[5%] h-full overflow-y-scroll gap-[10%]">
       <div className={`${barlowCondensed.className} text-center`}>
-        <h1 className="font-medium text-8xl mb-[5%] text-dark-100">
+        <h1 className="font-medium text-6xl sm:text-8xl mb-[5%] text-dark-100">
           HousingFinder <span className="text-bright-300">accelerates</span> the
           housing hunt
         </h1>
-        <ul className="text-center mb-[1%] font-medium text-[44px]">
+        <ul className="text-center mb-[1%] font-medium text-[40px] sm:text-[44px]">
           <li>
             <h3 className="text-dark-200">leases</h3>
           </li>
@@ -33,13 +33,13 @@ export default function Home() {
       </div>
       <Link href="/search">
         <button
-          className={`${barlowCondensed.className} font-medium text-center text-4xl bg-bright-500 hover:bg-bright-600 active:bg-bright-700 py-2.5 px-6 rounded-full mb-[2%] transition-colors`}
+          className={`${barlowCondensed.className} font-medium text-center text-3xl sm:text-4xl bg-bright-500 hover:bg-bright-600 active:bg-bright-700 py-2.5 px-6 rounded-full mb-[2%] transition-colors`}
         >
           Start Searching
         </button>
       </Link>
       <p
-        className={`${barlow.className} leading-normal text-2xl text-center text-dark-200`}
+        className={`${barlow.className} leading-normal text-xl sm:text-2xl text-center text-dark-200`}
       >
         Facebook Housing Groups remains a longstanding avenue for connecting
         roomies and lessee to leasors. However, FB Groups aren&apos;t tailored
@@ -52,12 +52,12 @@ export default function Home() {
         Facebook community.
       </p>
 
-      <h2 className="font-medium text-5xl text-center leading-snug mt-[10%] mb-[2%]">
+      <h2 className="font-medium text-4xl sm:text-5xl text-center leading-snug mt-[10%] mb-[2%]">
         This project is in its{" "}
         <span className="text-bright-300">beta phase</span>
       </h2>
       <p
-        className={`${barlow.className} leading-normal text-2xl text-center text-dark-200`}
+        className={`${barlow.className} leading-normal text-xl sm:text-2xl text-center text-dark-200`}
       >
         HousingFinder currently only supports the{" "}
         <a
