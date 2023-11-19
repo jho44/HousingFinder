@@ -8,7 +8,7 @@ const roboto = Roboto({
   subsets: ["latin"],
 });
 
-const title = "LeaseSearch";
+const title = "HousingFinder";
 const description = "Easily filter and search through FB Housing Group posts";
 
 export default function MyApp({ Component, pageProps }) {
