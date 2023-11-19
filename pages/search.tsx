@@ -6,6 +6,7 @@ import { PAGE_SIZE, GRP_ID } from "@/lib/constants";
 import { convertToDate, isWithin16Days } from "@/lib/utils";
 
 import FilterBar from "../components/FilterBar";
+import Spinner from "../components/Spinner";
 
 import styles from "../components/SearchSection.module.css";
 
@@ -35,7 +36,6 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const debouncedHighPrice = useDebounce(highPrice, 1000);
   const [allPosts, setAllPosts] = useState(firstPagePosts);
   const [filteredPosts, setFilteredPosts] = useState(allPosts);
-  const yesterday = dayjs().subtract(1, "day").startOf("day");
   const [searchBarPosts, setSearchBarPosts] = useState(allPosts);
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
@@ -111,6 +111,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const contentEl = useRef<HTMLDivElement>(null);
   const scrolledToLastPage = allPosts.length % PAGE_SIZE > 0;
   const pageNum = useRef(0);
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
   useEffect(() => {
     const currContentEl = contentEl.current;
     if (!currContentEl) return;
@@ -122,6 +123,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
         ) {
           // at btm of feed
           if (scrolledToLastPage) return;
+          setLoadingMorePosts(true);
           pageNum.current = pageNum.current + 1;
           const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
           const newPosts = (await res.json()) as Post[];
@@ -129,6 +131,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
             ...post,
             created_at: new Date(post.created_at).toISOString(),
           })) as Post[];
+          setLoadingMorePosts(false);
           setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
           setFilteredPosts((prevPosts) => [
             ...prevPosts,
@@ -225,9 +228,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
                         className="w-fit text-sm text-dark-300"
                         target="_blank"
                       >
-                        {createdDatetime.isBefore(yesterday)
-                          ? dayjs(post.created_at).format("MMM D")
-                          : dayjs(post.created_at).format("MMM D [at] h:mm A")}
+                        {dayjs(post.created_at).format("MMM D")}
                       </a>
                     </div>
                   </div>
@@ -250,10 +251,9 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
         ) : (
           <p className="text-dark-200 text-lg">No posts available</p>
         )}
-        {scrolledToLastPage ? (
+        {loadingMorePosts && <Spinner />}
+        {scrolledToLastPage && (
           <p className="text-dark-200 text-lg">No more posts</p>
-        ) : (
-          <></>
         )}
       </div>
     </div>

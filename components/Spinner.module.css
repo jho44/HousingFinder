@@ -1,0 +1,50 @@
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: rotate 0.75s linear infinite;
+  border-radius: 50%;
+  height: var(--size);
+  width: var(--size);
+  position: relative;
+}
+
+.spinner::before,
+.spinner::after {
+  content: "";
+  position: absolute;
+}
+
+.spinner::before {
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color) 0deg 50deg,
+    var(--bg-color) 50deg 360deg
+  );
+  /* background:
+    linear-gradient(0deg, hsla(0, 0%, 100%, 1) 50%, hsla(0, 0%, 100%, 0.9) 100%) 0% 0%,
+    linear-gradient(90deg, hsla(0, 0%, 100%, 0.9) 0%, hsla(0, 0%, 100%, 0.6) 100%) 100% 0%,
+    linear-gradient(180deg, hsla(0, 0%, 100%, 0.6) 0%, hsla(0, 0%, 100%, 0.3) 100%) 100% 100%,
+    linear-gradient(360deg, hsla(0, 0%, 100%, 0.3) 0%, hsla(0, 0%, 100%, 0) 100%) 0% 100%; */
+  background-repeat: no-repeat;
+  top: var(--thickness);
+  bottom: var(--thickness);
+  left: var(--thickness);
+  right: var(--thickness);
+}
+
+.spinner::after {
+  background: var(--bg-color);
+  border-radius: 50%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
