@@ -4,7 +4,7 @@ import { PAGE_SIZE } from "@/lib/constants";
 export default async function getPosts(pageNum: number) {
   const query = sfCollection2
     .find({})
-    .sort({ created_at: -1 })
+    .sort({ created_at: -1, _id: -1 })
     .limit(PAGE_SIZE)
     .skip(pageNum * PAGE_SIZE)
     .project({

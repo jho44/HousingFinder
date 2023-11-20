@@ -180,12 +180,11 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
         {filteredPosts.length ? (
           filteredPosts.map((post) => {
             const postId = post.id;
-            const createdDatetime = dayjs(post.created_at);
             const ogPostLink = `https://www.facebook.com/groups/${GRP_ID}/posts/${postId}/`;
             return (
               <div
                 key={post.id}
-                className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-full break-words sm:max-w-[680px] bg-dark-900"
+                className="flex flex-col gap-3 py-3 px-4 rounded-lg max-w-full break-words sm:w-full sm:max-w-[680px] bg-dark-900"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
