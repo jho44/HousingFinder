@@ -67,9 +67,14 @@ export default function Home() {
           San Francisco Housing, Rooms, Apartments, Sublets
         </a>{" "}
         Group. HF also doesn&apos;t automatically get the latest posts in the
-        group. If you&apos;d like for HF to support a certain FB group, kindly{" "}
-        <a href="mailto:findhousing.ai@gmail.com" className="text-bright-600">
-          send us an email
+        group. If you&apos;d like for HF to support a certain FB group, consider
+        leaving a donation and note{" "}
+        <a className="text-bright-600" href="https://ko-fi.com/housingfinder">
+          here
+        </a>
+        . If this is beyond your means, simply{" "}
+        <a className="text-bright-600" href="mailto:findhousing.ai@gmail.com">
+          leave an email
         </a>
         .
       </p>

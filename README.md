@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## HousingFinder
 
-## Getting Started
+This was a project I started because I, and others I know, were frustrated by how difficult it was to search through Facebook Housing Groups for roommates / leases. In Facebook, ctrl-f doesn't work and there's no way to filter based on price ranges and such (since that's not what Facebook was made for). HousingFinder solves all of these problems and, at the time of writing this, is hosted [here](https://housing-finder.vercel.app). If it's no longer hosted by the time you find this repo, it's because of a number of factors (e.g., potential non-compliance with various policies since we're scraping posts rather than retrieving them via the FB API). If you think it should be revived, though, consider leaving a donation [here](https://ko-fi.com/housingfinder).
 
-First, run the development server:
+### Tech stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js -- frontend / backend
+- Vercel -- deployment
+- GPT -- extract entities from Facebook posts
+- MongoDB -- DB
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Things to improve / do
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- [ ] dedicated IP addr for vercel https://vercel.com/guides/how-to-allowlist-deployment-ip-address
 
-## Learn More
+backend
 
-To learn more about Next.js, take a look at the following resources:
+- [ ] make the scraper work in headless mode
+- [ ] scrape FB group posts via cron job
+- [ ] redis cache entity extraction
+- [ ] track other FB groups
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+frontend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- [ ] amenities dropdown
+- [ ] better looking loading screen
+- [ ] include any necessary legal text on home page
+- [ ] enable users to suggest other features or provide feedback
+- [ ] code improvements
+  - [ ] useContext
+  - [ ] clean up styles
+- [ ] transitions / animations
+  - [ ] make the feed move downwards whenever a popover opens
+- [ ] highlight keywords searched
+- [ ] update page immediately when new post comes in
+- [ ] enable hiding posts
+  - [ ] need another section to show hidden ones
 
-## Deploy on Vercel
+database
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] figure out how to scale the db
+  - https://www.mongodb.com/basics/scaling
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Final notes
+
+This project currently works by manually triggering the scraping in non-headless mode. That code can be found in `lib/scrape/index.js` and can be run with simply `node index.js` (after installing the proper packages).
