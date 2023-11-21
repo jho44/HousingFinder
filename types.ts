@@ -42,3 +42,8 @@ export type Post = {
     | "pets"[];
   desired_gender?: "male" | "female";
 };
+
+export type SearchResult = {
+  [key: string]: { start?: number; end?: number };
+  // post's ID to start and end indices of search match
+};

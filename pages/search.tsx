@@ -3,7 +3,12 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import getPosts from "@/lib/api/getPosts";
 import { PAGE_SIZE, GRP_ID } from "@/lib/constants";
-import { convertToDate, isWithinXDays } from "@/lib/utils";
+import {
+  convertToDate,
+  isWithinXDays,
+  postsToSearchResults,
+  getSearchResults,
+} from "@/lib/utils";
 
 import FilterBar from "../components/FilterBar/FilterBar";
 import Spinner from "../components/Spinner/Spinner";
@@ -36,9 +41,12 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const debouncedHighPrice = useDebounce(highPrice, 1000);
   const [allPosts, setAllPosts] = useState(firstPagePosts);
   const [filteredPosts, setFilteredPosts] = useState(allPosts);
-  const [searchBarPosts, setSearchBarPosts] = useState(allPosts);
+  const [searchBarPosts, setSearchBarPosts] = useState(
+    postsToSearchResults(allPosts),
+  );
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const debouncedInputRef = useRef<string>("");
 
   const updateFilterBarHeight = () => {
     if (filterBarRef.current) {
@@ -69,7 +77,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     const highPriceNum = debouncedHighPrice
       ? parseInt(debouncedHighPrice, 10)
       : Infinity;
-    const searchBarIds = new Set(searchBarPosts.map((p) => p.id));
+    const searchBarIds = new Set(Object.keys(searchBarPosts));
     allPosts.forEach((post) => {
       if (
         (searchType === "searching_for" &&
@@ -137,10 +145,14 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
             ...prevPosts,
             ...newPostsSerialized,
           ]);
-          setSearchBarPosts((prevPosts) => [
+          const newSearchResults = getSearchResults(
+            debouncedInputRef.current,
+            newPostsSerialized,
+          );
+          setSearchBarPosts((prevPosts) => ({
             ...prevPosts,
-            ...newPostsSerialized,
-          ]);
+            ...newSearchResults,
+          }));
         }
       }
     };
@@ -165,6 +177,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
         moveInDate={moveInDate}
         moveOutDate={moveOutDate}
         gender={gender}
+        debouncedInputRef={debouncedInputRef}
         setPosts={setSearchBarPosts}
         setSearchType={setSearchType}
         setLowPrice={setLowPrice}
@@ -243,7 +256,22 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
                     </a>
                   </div>
                 </div>
-                {post.msg}
+                {searchBarPosts[post.id]?.start === undefined ? (
+                  post.msg
+                ) : (
+                  <div>
+                    <span>
+                      {post.msg.slice(0, searchBarPosts[post.id].start)}
+                    </span>
+                    <span className="bg-bright-600">
+                      {post.msg.slice(
+                        searchBarPosts[post.id].start,
+                        searchBarPosts[post.id].end,
+                      )}
+                    </span>
+                    <span>{post.msg.slice(searchBarPosts[post.id].end)}</span>
+                  </div>
+                )}
               </div>
             );
           })

@@ -1,8 +1,34 @@
+import type { Post, SearchResult } from "@/types";
+import { search } from "fast-fuzzy";
 import dayjs, { type Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
+
+export function postsToSearchResults(allPosts: Post[]) {
+  const res: SearchResult = {};
+  allPosts.forEach((p) => {
+    res[p.id] = {};
+  });
+  return res;
+}
+
+export function getSearchResults(input: string, postsToSearch: Post[]) {
+  const searchResults = search(input, postsToSearch, {
+    keySelector: (obj) => obj.msg,
+    threshold: 0.8,
+    returnMatchData: true,
+  });
+  const newSearchPostResults: SearchResult = {};
+  searchResults.forEach(({ item, match }) => {
+    newSearchPostResults[item.id] = {
+      start: match.index,
+      end: match.index + match.length,
+    };
+  });
+  return newSearchPostResults;
+}
 
 export function trimWhitespaceOnAllLines(str: string) {
   return str

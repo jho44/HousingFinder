@@ -7,15 +7,17 @@ import {
   forwardRef,
   ForwardedRef,
   Fragment,
+  type MutableRefObject,
 } from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
 import { search } from "fast-fuzzy";
+import { getSearchResults, postsToSearchResults } from "@/lib/utils";
 import Dropdown from "../Dropdowns/Dropdown";
 import TypeDropdownPane from "../Dropdowns/TypeDropdownPane";
 import { useDebounce } from "../../hooks/useDebounce";
 import styles from "./FilterBar.module.css";
-import type { MoveDate, Gender, Post } from "../../types";
+import type { MoveDate, Gender, Post, SearchResult } from "../../types";
 
 import { Calendar } from "primereact/calendar";
 
@@ -47,6 +49,7 @@ const FilterBar = forwardRef(function FilterBar(
     moveInDate,
     moveOutDate,
     gender,
+    debouncedInputRef,
     setPosts,
     setSearchType,
     setLowPrice,
@@ -63,7 +66,8 @@ const FilterBar = forwardRef(function FilterBar(
     moveInDate: MoveDate;
     moveOutDate: MoveDate;
     gender: Gender;
-    setPosts: Dispatch<SetStateAction<Post[]>>;
+    debouncedInputRef: MutableRefObject<string>;
+    setPosts: Dispatch<SetStateAction<SearchResult>>;
     setSearchType: Dispatch<SetStateAction<string>>;
     setLowPrice: Dispatch<SetStateAction<string>>;
     setHighPrice: Dispatch<SetStateAction<string>>;
@@ -86,13 +90,12 @@ const FilterBar = forwardRef(function FilterBar(
   useEffect(() => {
     if (updatedPosts.current) return;
     updatedPosts.current = true;
-
+    debouncedInputRef.current = debouncedInput;
     if (debouncedInput) {
-      setPosts(
-        search(debouncedInput, posts, { keySelector: (obj) => obj.msg }),
-      );
-    } else setPosts(allPosts);
-  }, [debouncedInput, posts, setPosts, allPosts]);
+      const newSearchResults = getSearchResults(debouncedInput, posts);
+      setPosts(newSearchResults);
+    } else setPosts(postsToSearchResults(allPosts));
+  }, [debouncedInputRef, debouncedInput, posts, setPosts, allPosts]);
 
   // TODO: tentatively ready to delete scrollX stuff
   const [scrollX, setScrollX] = useState(0);
