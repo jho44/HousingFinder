@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
 import getPosts from "@/lib/api/getPosts";
@@ -47,6 +47,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
   const debouncedInputRef = useRef<string>("");
+  const wheelTimeout = useRef<NodeJS.Timeout>();
 
   const updateFilterBarHeight = () => {
     if (filterBarRef.current) {
@@ -120,46 +121,66 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const scrolledToLastPage = allPosts.length % PAGE_SIZE > 0;
   const pageNum = useRef(0);
   const [loadingMorePosts, setLoadingMorePosts] = useState(false);
+
+  const loadMorePosts = useCallback(async () => {
+    if (scrolledToLastPage || loadingMorePosts) return;
+    setLoadingMorePosts(true);
+    pageNum.current = pageNum.current + 1;
+    const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
+    const newPosts = (await res.json()) as Post[];
+    const newPostsSerialized = newPosts.map((post) => ({
+      ...post,
+      created_at: new Date(post.created_at).toISOString(),
+    })) as Post[];
+    setLoadingMorePosts(false);
+    setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
+    // TODO: this call is questionable
+    // try turning filteredPosts into a simple calculated val
+    setFilteredPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
+    const newSearchResults = getSearchResults(
+      debouncedInputRef.current,
+      newPostsSerialized,
+    );
+    setSearchBarPosts((prevPosts) => ({
+      ...prevPosts,
+      ...newSearchResults,
+    }));
+  }, [loadingMorePosts, scrolledToLastPage]);
+
+  const scrolled = useRef(false);
   useEffect(() => {
     const currContentEl = contentEl.current;
     if (!currContentEl) return;
     const handleScroll = async (e: Event) => {
+      scrolled.current = true;
       if (e.currentTarget instanceof HTMLDivElement) {
         if (
           e.currentTarget.scrollTop ===
           e.currentTarget.scrollHeight - e.currentTarget.offsetHeight
         ) {
           // at btm of feed
-          if (scrolledToLastPage || loadingMorePosts) return;
-          setLoadingMorePosts(true);
-          pageNum.current = pageNum.current + 1;
-          const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
-          const newPosts = (await res.json()) as Post[];
-          const newPostsSerialized = newPosts.map((post) => ({
-            ...post,
-            created_at: new Date(post.created_at).toISOString(),
-          })) as Post[];
-          setLoadingMorePosts(false);
-          setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
-          setFilteredPosts((prevPosts) => [
-            ...prevPosts,
-            ...newPostsSerialized,
-          ]);
-          const newSearchResults = getSearchResults(
-            debouncedInputRef.current,
-            newPostsSerialized,
-          );
-          setSearchBarPosts((prevPosts) => ({
-            ...prevPosts,
-            ...newSearchResults,
-          }));
+          await loadMorePosts();
         }
       }
     };
 
+    const handleWheel = async (e: WheelEvent) => {
+      // load more posts if e.deltaY > 0 and handleScroll not triggered
+      clearTimeout(wheelTimeout.current);
+      wheelTimeout.current = setTimeout(async () => {
+        if (scrolled.current) return;
+        if (e.deltaY <= 1) await loadMorePosts();
+        scrolled.current = false;
+      }, 100);
+    };
+
     currContentEl.addEventListener("scroll", handleScroll);
-    return () => currContentEl.removeEventListener("scroll", handleScroll);
-  }, [allPosts, scrolledToLastPage, filteredPosts, loadingMorePosts]);
+    currContentEl.addEventListener("wheel", handleWheel);
+    return () => {
+      currContentEl.removeEventListener("scroll", handleScroll);
+      currContentEl.removeEventListener("wheel", handleWheel);
+    };
+  }, [loadMorePosts]);
 
   if (!allPosts) return <div>Loading...</div>;
   return (
