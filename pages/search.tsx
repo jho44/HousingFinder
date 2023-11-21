@@ -3,7 +3,7 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import getPosts from "@/lib/api/getPosts";
 import { PAGE_SIZE, GRP_ID } from "@/lib/constants";
-import { convertToDate, isWithin16Days } from "@/lib/utils";
+import { convertToDate, isWithinXDays } from "@/lib/utils";
 
 import FilterBar from "../components/FilterBar/FilterBar";
 import Spinner from "../components/Spinner/Spinner";
@@ -82,12 +82,12 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       if (highPriceNum < (post.price_range?.high ?? 0)) return;
       if (post.duration?.start && moveInDate) {
         const postMoveInDate = convertToDate(post.duration?.start, true);
-        if (postMoveInDate && !isWithin16Days(moveInDate, postMoveInDate))
+        if (postMoveInDate && !isWithinXDays(moveInDate, postMoveInDate, 1))
           return;
       }
       if (post.duration?.end && moveOutDate) {
         const postMoveOutDate = convertToDate(post.duration?.end, true);
-        if (postMoveOutDate && !isWithin16Days(moveOutDate, postMoveOutDate))
+        if (postMoveOutDate && !isWithinXDays(moveOutDate, postMoveOutDate, 1))
           return;
       }
       if (post.desired_gender && gender && post.desired_gender !== gender)

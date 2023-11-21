@@ -18,16 +18,30 @@ export function convertToDate(dateStr: string, start: boolean) {
     return M_D_YYYY;
   }
 
+  const M_D_YY = dayjs(dateStr, "M/D/YY", true);
+  if (M_D_YY.isValid()) {
+    return M_D_YY;
+  }
+
   const M_YYYY = dayjs(dateStr, "M/YYYY", true);
   if (M_YYYY.isValid()) {
     return start ? M_YYYY.startOf("month") : M_YYYY.endOf("month");
   }
 
+  const M_YY = dayjs(dateStr, "M/YY", true);
+  if (M_YY.isValid()) {
+    return start ? M_YY.startOf("month") : M_YY.endOf("month");
+  }
+
   return null;
 }
 
-export function isWithin16Days(userDate: Dayjs, postDate: Dayjs) {
-  const userStart = userDate.subtract(16, "day");
-  const userEnd = userDate.add(16, "day");
+export function isWithinXDays(
+  userDate: Dayjs,
+  postDate: Dayjs,
+  numDays: number,
+) {
+  const userStart = userDate.subtract(numDays, "day");
+  const userEnd = userDate.add(numDays, "day");
   return postDate.isBetween(userStart, userEnd, "day", "[]");
 }
