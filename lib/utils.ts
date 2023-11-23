@@ -15,6 +15,7 @@ export function postsToSearchResults(allPosts: Post[]) {
 }
 
 export function getSearchResults(input: string, postsToSearch: Post[]) {
+  if (!input) return postsToSearchResults(postsToSearch);
   const searchResults = search(input, postsToSearch, {
     keySelector: (obj) => obj.msg,
     threshold: 0.8,

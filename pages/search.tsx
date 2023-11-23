@@ -40,7 +40,6 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const debouncedLowPrice = useDebounce(lowPrice, 1000);
   const debouncedHighPrice = useDebounce(highPrice, 1000);
   const [allPosts, setAllPosts] = useState(firstPagePosts);
-  const [filteredPosts, setFilteredPosts] = useState(allPosts);
   const [searchBarPosts, setSearchBarPosts] = useState(
     postsToSearchResults(allPosts),
   );
@@ -72,50 +71,37 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    let posts: Post[] = [];
-    const lowPriceNum = debouncedLowPrice ? parseInt(debouncedLowPrice, 10) : 0;
-    const highPriceNum = debouncedHighPrice
-      ? parseInt(debouncedHighPrice, 10)
-      : Infinity;
-    const searchBarIds = new Set(Object.keys(searchBarPosts));
-    allPosts.forEach((post) => {
-      if (
-        (searchType === "searching_for" &&
-          post.post_type !== "searching_for_lease") ||
-        (searchType === "offering" && post.post_type !== "offering_lease")
-      )
+  const filteredPosts: Post[] = [];
+  const lowPriceNum = debouncedLowPrice ? parseInt(debouncedLowPrice, 10) : 0;
+  const highPriceNum = debouncedHighPrice
+    ? parseInt(debouncedHighPrice, 10)
+    : Infinity;
+  const searchBarIds = new Set(Object.keys(searchBarPosts));
+  allPosts.forEach((post) => {
+    if (
+      (searchType === "searching_for" &&
+        post.post_type !== "searching_for_lease") ||
+      (searchType === "offering" && post.post_type !== "offering_lease")
+    )
+      return;
+    if (!searchBarIds.has(post.id)) return;
+    if (lowPriceNum > (post.price_range?.low ?? Infinity)) return;
+    if (highPriceNum < (post.price_range?.high ?? 0)) return;
+    if (post.duration?.start && moveInDate) {
+      const postMoveInDate = convertToDate(post.duration?.start, true);
+      if (postMoveInDate && !isWithinXDays(moveInDate, postMoveInDate, 1))
         return;
-      if (!searchBarIds.has(post.id)) return;
-      if (lowPriceNum > (post.price_range?.low ?? Infinity)) return;
-      if (highPriceNum < (post.price_range?.high ?? 0)) return;
-      if (post.duration?.start && moveInDate) {
-        const postMoveInDate = convertToDate(post.duration?.start, true);
-        if (postMoveInDate && !isWithinXDays(moveInDate, postMoveInDate, 1))
-          return;
-      }
-      if (post.duration?.end && moveOutDate) {
-        const postMoveOutDate = convertToDate(post.duration?.end, true);
-        if (postMoveOutDate && !isWithinXDays(moveOutDate, postMoveOutDate, 1))
-          return;
-      }
-      if (post.desired_gender && gender && post.desired_gender !== gender)
+    }
+    if (post.duration?.end && moveOutDate) {
+      const postMoveOutDate = convertToDate(post.duration?.end, true);
+      if (postMoveOutDate && !isWithinXDays(moveOutDate, postMoveOutDate, 1))
         return;
+    }
+    if (post.desired_gender && gender && post.desired_gender !== gender) return;
 
-      // amenities?: string[];
-      posts.push(post);
-    });
-    setFilteredPosts(posts);
-  }, [
-    searchType,
-    debouncedLowPrice,
-    debouncedHighPrice,
-    moveInDate,
-    moveOutDate,
-    allPosts,
-    gender,
-    searchBarPosts,
-  ]);
+    // amenities?: string[];
+    filteredPosts.push(post);
+  });
 
   const contentEl = useRef<HTMLDivElement>(null);
   const scrolledToLastPage = allPosts.length % PAGE_SIZE > 0;
@@ -132,11 +118,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       ...post,
       created_at: new Date(post.created_at).toISOString(),
     })) as Post[];
-    setLoadingMorePosts(false);
     setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
-    // TODO: this call is questionable
-    // try turning filteredPosts into a simple calculated val
-    setFilteredPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
     const newSearchResults = getSearchResults(
       debouncedInputRef.current,
       newPostsSerialized,
@@ -145,9 +127,14 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       ...prevPosts,
       ...newSearchResults,
     }));
+
+    setTimeout(() => {
+      setLoadingMorePosts(false);
+    });
   }, [loadingMorePosts, scrolledToLastPage]);
 
   const scrolled = useRef(false);
+  const wheelAnimationFrame = useRef<number>();
   useEffect(() => {
     const currContentEl = contentEl.current;
     if (!currContentEl) return;
@@ -166,12 +153,15 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
 
     const handleWheel = async (e: WheelEvent) => {
       // load more posts if e.deltaY > 0 and handleScroll not triggered
-      clearTimeout(wheelTimeout.current);
-      wheelTimeout.current = setTimeout(async () => {
+      if (wheelAnimationFrame.current)
+        cancelAnimationFrame(wheelAnimationFrame.current);
+
+      // Schedule a new function call using requestAnimationFrame
+      wheelAnimationFrame.current = requestAnimationFrame(async () => {
         if (scrolled.current) return;
         if (e.deltaY <= 1) await loadMorePosts();
         scrolled.current = false;
-      }, 100);
+      });
     };
 
     currContentEl.addEventListener("scroll", handleScroll);
