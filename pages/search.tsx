@@ -110,12 +110,19 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const loadMorePosts = useCallback(async () => {
     if (scrolledToLastPage || loadingMorePosts) return;
     setLoadingMorePosts(true);
-    const filters = { keyword: debouncedInputRef.current };
+    const filters = {
+      searchType,
+      lowPrice,
+      highPrice,
+      moveInDate,
+      moveOutDate,
+      gender,
+      keyword: debouncedInputRef.current,
+    };
     const filtersStr = Object.entries(filters)
       .filter(([_, v]) => v)
       .map(([k, v]) => `${k}=${v}`)
       .join("&");
-
     const res = await fetch(
       `/api/getPosts?page=${pageNum.current}${
         filtersStr ? `&${filtersStr}` : ""
@@ -141,7 +148,16 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     setTimeout(() => {
       setLoadingMorePosts(false);
     });
-  }, [loadingMorePosts, scrolledToLastPage]);
+  }, [
+    loadingMorePosts,
+    scrolledToLastPage,
+    gender,
+    highPrice,
+    lowPrice,
+    moveInDate,
+    moveOutDate,
+    searchType,
+  ]);
 
   const scrolled = useRef(false);
   const wheelAnimationFrame = useRef<number>();
@@ -169,7 +185,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       // Schedule a new function call using requestAnimationFrame
       wheelAnimationFrame.current = requestAnimationFrame(async () => {
         if (scrolled.current) return;
-        if (e.deltaY <= 1) await loadMorePosts();
+        if (0 <= e.deltaY && e.deltaY <= 1) await loadMorePosts();
         scrolled.current = false;
       });
     };

@@ -99,17 +99,6 @@ export default async function getPosts({
     results.push(doc);
     numResults++;
 
-    // console.log({
-    //   searchTypeCond,
-    //   lowPriceCond,
-    //   highPriceCond,
-    //   moveInDateCond,
-    //   moveOutDateCond,
-    //   genderCond,
-    //   keywordCond,
-    //   numMatches,
-    //   numResults
-    // })
     if (numMatches === PAGE_SIZE && numResults % PAGE_SIZE === 0) break;
   }
 
