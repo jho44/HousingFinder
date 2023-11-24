@@ -3,6 +3,7 @@ import { search } from "fast-fuzzy";
 import dayjs, { type Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isBetween from "dayjs/plugin/isBetween";
+import { FUZZY_SEARCH_OPTS } from "./constants";
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
 
@@ -17,8 +18,8 @@ export function postsToSearchResults(allPosts: Post[]) {
 export function getSearchResults(input: string, postsToSearch: Post[]) {
   if (!input) return postsToSearchResults(postsToSearch);
   const searchResults = search(input, postsToSearch, {
+    ...FUZZY_SEARCH_OPTS,
     keySelector: (obj) => obj.msg,
-    threshold: 0.8,
     returnMatchData: true,
   });
   const newSearchPostResults: SearchResult = {};

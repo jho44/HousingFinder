@@ -11,13 +11,18 @@ import {
 } from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
-import { search } from "fast-fuzzy";
 import { getSearchResults, postsToSearchResults } from "@/lib/utils";
 import Dropdown from "../Dropdowns/Dropdown";
 import TypeDropdownPane from "../Dropdowns/TypeDropdownPane";
 import { useDebounce } from "../../hooks/useDebounce";
 import styles from "./FilterBar.module.css";
-import type { MoveDate, Gender, Post, SearchResult } from "../../types";
+import type {
+  MoveDate,
+  Gender,
+  Post,
+  SearchResult,
+  PostTypeFilter,
+} from "../../types";
 
 import { Calendar } from "primereact/calendar";
 
@@ -68,7 +73,7 @@ const FilterBar = forwardRef(function FilterBar(
     gender: Gender;
     debouncedInputRef: MutableRefObject<string>;
     setPosts: Dispatch<SetStateAction<SearchResult>>;
-    setSearchType: Dispatch<SetStateAction<string>>;
+    setSearchType: Dispatch<SetStateAction<PostTypeFilter>>;
     setLowPrice: Dispatch<SetStateAction<string>>;
     setHighPrice: Dispatch<SetStateAction<string>>;
     setMoveInDate: Dispatch<SetStateAction<MoveDate>>;
@@ -230,7 +235,7 @@ const FilterBar = forwardRef(function FilterBar(
           <div className="gap-2 shadow-[0_0_3px_0_white] shadow-dark-700 flex flex-col w-[222px] bg-dark-950 p-2">
             <TypeDropdownPane
               types={searchTypeLabels}
-              setType={setSearchType}
+              setType={setSearchType as Dispatch<SetStateAction<string>>}
               currType={searchType}
             />
           </div>

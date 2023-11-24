@@ -4,6 +4,9 @@ export type MoveDate = Dayjs | null;
 
 export type Gender = "male" | "female" | null;
 
+export type PostType = "searching_for" | "offering";
+export type PostTypeFilter = PostType | "all";
+
 export type Post = {
   id: string;
   msg: string;

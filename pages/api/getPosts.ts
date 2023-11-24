@@ -11,6 +11,9 @@ export default async function handler(
     return;
   }
   const pageNum = parseInt(page, 10);
-  const docs = await getPosts(pageNum);
-  res.json(docs);
+  const posts = await getPosts({
+    pageNum,
+    ...req.query,
+  });
+  res.json([posts]);
 }

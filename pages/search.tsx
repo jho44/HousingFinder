@@ -16,11 +16,11 @@ import Spinner from "../components/Spinner/Spinner";
 import styles from "../components/SearchSection.module.css";
 
 import { useDebounce } from "../hooks/useDebounce";
-import { Gender, MoveDate, Post } from "../types";
+import type { Gender, MoveDate, Post, PostType } from "../types";
 
 // This gets called on every request
 export async function getServerSideProps() {
-  const posts = await getPosts(0);
+  const { results: posts } = await getPosts({ pageNum: 0 });
   const serializablePosts = posts.map((post) => ({
     ...post,
     created_at: post.created_at.toISOString(),
@@ -31,7 +31,7 @@ export async function getServerSideProps() {
 }
 
 export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
-  const [searchType, setSearchType] = useState("all");
+  const [searchType, setSearchType] = useState<PostType | "all">("all");
   const [lowPrice, setLowPrice] = useState("");
   const [highPrice, setHighPrice] = useState("");
   const [moveInDate, setMoveInDate] = useState<MoveDate>(null);
@@ -46,7 +46,6 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
   const debouncedInputRef = useRef<string>("");
-  const wheelTimeout = useRef<NodeJS.Timeout>();
 
   const updateFilterBarHeight = () => {
     if (filterBarRef.current) {
@@ -105,15 +104,26 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
 
   const contentEl = useRef<HTMLDivElement>(null);
   const scrolledToLastPage = allPosts.length % PAGE_SIZE > 0;
-  const pageNum = useRef(0);
+  const pageNum = useRef(1);
   const [loadingMorePosts, setLoadingMorePosts] = useState(false);
 
   const loadMorePosts = useCallback(async () => {
     if (scrolledToLastPage || loadingMorePosts) return;
     setLoadingMorePosts(true);
-    pageNum.current = pageNum.current + 1;
-    const res = await fetch(`/api/getPosts?page=${pageNum.current}`);
-    const newPosts = (await res.json()) as Post[];
+    const filters = { keyword: debouncedInputRef.current };
+    const filtersStr = Object.entries(filters)
+      .filter(([_, v]) => v)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+
+    const res = await fetch(
+      `/api/getPosts?page=${pageNum.current}${
+        filtersStr ? `&${filtersStr}` : ""
+      }`,
+    );
+    const [{ results, lastPageNum }] = await res.json();
+    const newPosts = results as Post[];
+    pageNum.current = lastPageNum;
     const newPostsSerialized = newPosts.map((post) => ({
       ...post,
       created_at: new Date(post.created_at).toISOString(),
