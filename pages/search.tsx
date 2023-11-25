@@ -133,10 +133,18 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     const [{ results, nextPageNum }] = await res.json();
     const newPosts = results as Post[];
     pageNum.current = nextPageNum;
-    const newPostsSerialized = newPosts.map((post) => ({
-      ...post,
-      created_at: new Date(post.created_at).toISOString(),
-    })) as Post[];
+
+    // don't include any repeats from accidentally fetching same page more than once
+    const newPostsSerialized: Post[] = [];
+    const postIds = new Set(allPosts.map(({ id }) => id));
+    newPosts.forEach((post) => {
+      if (postIds.has(post.id)) return;
+      newPostsSerialized.push({
+        ...post,
+        created_at: new Date(post.created_at).toISOString(),
+      });
+    });
+
     setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
     const newSearchResults = getSearchResults(
       debouncedInputRef.current,
@@ -152,6 +160,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       loadingRef.current = false;
     });
   }, [
+    allPosts,
     scrolledToLastPage,
     gender,
     debouncedHighPrice,
@@ -184,15 +193,12 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     currContentEl.addEventListener("scroll", handleScroll);
     // currContentEl.addEventListener("wheel", handleWheel);
     return () => {
-      console.log("rm listeners");
       currContentEl.removeEventListener("scroll", handleScroll);
       // currContentEl.removeEventListener("wheel", handleWheel);
-      if (wheelAnimationFrame.current)
-        cancelAnimationFrame(wheelAnimationFrame.current);
     };
   }, [
     handleScroll,
-    loadMorePosts,
+    // loadMorePosts,
     // , handleWheel
   ]);
 
