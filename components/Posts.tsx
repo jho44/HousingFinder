@@ -1,3 +1,4 @@
+import { type ForwardedRef, forwardRef } from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
 import { GRP_ID } from "@/lib/constants";
@@ -6,25 +7,29 @@ import Spinner from "../components/Spinner/Spinner";
 
 import type { Post, SearchResult } from "../types";
 
-export default function Posts({
-  posts,
-  filterBarHeight,
-  searchBarPosts,
-  loadingMorePosts,
-  scrolledToLastPage,
-}: {
-  posts: Post[];
-  filterBarHeight: number;
-  searchBarPosts: SearchResult;
-  loadingMorePosts: boolean;
-  scrolledToLastPage: boolean;
-}) {
+const Posts = forwardRef(function Posts(
+  {
+    posts,
+    filterBarHeight,
+    searchBarPosts,
+    loadingMorePosts,
+    scrolledToLastPage,
+  }: {
+    posts: Post[];
+    filterBarHeight: number;
+    searchBarPosts: SearchResult;
+    loadingMorePosts: boolean;
+    scrolledToLastPage: boolean;
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
   return (
     <div
+      ref={ref}
       className="flex flex-col items-center px-4 pb-4 gap-4"
       style={{ paddingTop: `calc(${filterBarHeight}px + 16px)` }}
     >
-      {posts.length &&
+      {posts.length ? (
         posts.map((post) => {
           const postId = post.id;
           const ogPostLink = `https://www.facebook.com/groups/${GRP_ID}/posts/${postId}/`;
@@ -108,7 +113,10 @@ export default function Posts({
               )}
             </div>
           );
-        })}
+        })
+      ) : (
+        <></>
+      )}
       {loadingMorePosts ? (
         <Spinner />
       ) : (
@@ -118,4 +126,6 @@ export default function Posts({
       )}
     </div>
   );
-}
+});
+
+export default Posts;

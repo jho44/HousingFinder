@@ -46,6 +46,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   );
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const postsContainer = useRef<HTMLDivElement>(null);
   const debouncedInputRef = useRef<string>("");
 
   const updateFilterBarHeight = () => {
@@ -171,7 +172,6 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   ]);
 
   const loadingRef = useRef(false);
-  const wheelAnimationFrame = useRef<number>();
   const handleScroll = useCallback(
     async (e: Event) => {
       if (
@@ -186,21 +186,29 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     [loadMorePosts],
   );
 
+  const handleWheel = useCallback(
+    async (e: Event) => {
+      // on wheel, load more posts if the container’s height is less than page height
+      if (!postsContainer.current) return;
+      if (postsContainer.current.clientHeight < window.innerHeight) {
+        e.stopImmediatePropagation();
+        await loadMorePosts();
+      }
+    },
+    [loadMorePosts],
+  );
+
   useEffect(() => {
     const currContentEl = contentEl.current;
     if (!currContentEl) return;
 
     currContentEl.addEventListener("scroll", handleScroll);
-    // currContentEl.addEventListener("wheel", handleWheel);
+    currContentEl.addEventListener("wheel", handleWheel);
     return () => {
       currContentEl.removeEventListener("scroll", handleScroll);
-      // currContentEl.removeEventListener("wheel", handleWheel);
+      currContentEl.removeEventListener("wheel", handleWheel);
     };
-  }, [
-    handleScroll,
-    // loadMorePosts,
-    // , handleWheel
-  ]);
+  }, [handleScroll, handleWheel]);
 
   if (!allPosts) return <div>Loading...</div>;
   return (
@@ -228,6 +236,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
         setGender={setGender}
       />
       <Posts
+        ref={postsContainer}
         posts={filteredPosts}
         filterBarHeight={filterBarHeight}
         searchBarPosts={searchBarPosts}
