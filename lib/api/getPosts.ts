@@ -100,6 +100,8 @@ export default async function getPosts({
     if (numMatches >= PAGE_SIZE && results.length % PAGE_SIZE === 0) break;
   }
 
+  await query.close();
+
   return {
     results,
     nextPageNum: pageNum + results.length / PAGE_SIZE,

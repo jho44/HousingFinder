@@ -41,13 +41,11 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   const debouncedLowPrice = useDebounce(lowPrice, 1000);
   const debouncedHighPrice = useDebounce(highPrice, 1000);
   const [allPosts, setAllPosts] = useState(firstPagePosts);
-  const [searchBarPosts, setSearchBarPosts] = useState(
-    postsToSearchResults(allPosts),
-  );
   const [filterBarHeight, setFilterBarHeight] = useState(0); // record of the filter bar height as window size changes
+  const [input, setInput] = useState("");
+  const debouncedInput = useDebounce(input, 1000);
   const filterBarRef = useRef<HTMLDivElement>(null);
   const postsContainer = useRef<HTMLDivElement>(null);
-  const debouncedInputRef = useRef<string>("");
 
   const updateFilterBarHeight = () => {
     if (filterBarRef.current) {
@@ -73,10 +71,13 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   }, []);
 
   const filteredPosts: Post[] = [];
-  const searchBarIds = new Set(Object.keys(searchBarPosts));
+  const searchBarPosts = getSearchResults(debouncedInput, allPosts);
+  const searchBarIds = debouncedInput
+    ? new Set(Object.keys(searchBarPosts))
+    : null;
   allPosts.forEach((post) => {
     if (!satisfiesSearchType(searchType, post.post_type)) return;
-    if (!searchBarIds.has(post.id)) return;
+    if (searchBarIds && !searchBarIds.has(post.id)) return;
     if (
       !satisfiesLowPrice(
         debouncedLowPrice,
@@ -119,7 +120,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
       moveInDate,
       moveOutDate,
       gender,
-      keyword: debouncedInputRef.current,
+      keyword: debouncedInput,
     };
     const filtersStr = Object.entries(filters)
       .filter(([_, v]) => v)
@@ -147,20 +148,12 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     });
 
     setAllPosts((prevPosts) => [...prevPosts, ...newPostsSerialized]);
-    const newSearchResults = getSearchResults(
-      debouncedInputRef.current,
-      newPostsSerialized,
-    );
-    setSearchBarPosts((prevPosts) => ({
-      ...prevPosts,
-      ...newSearchResults,
-    }));
-
     setTimeout(() => {
       setLoadingMorePosts(false);
       loadingRef.current = false;
     });
   }, [
+    debouncedInput,
     allPosts,
     scrolledToLastPage,
     gender,
@@ -218,16 +211,14 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
     >
       <FilterBar
         ref={filterBarRef}
-        allPosts={allPosts}
-        posts={filteredPosts}
         lowPrice={lowPrice}
         highPrice={highPrice}
         searchType={searchType}
         moveInDate={moveInDate}
         moveOutDate={moveOutDate}
         gender={gender}
-        debouncedInputRef={debouncedInputRef}
-        setPosts={setSearchBarPosts}
+        input={input}
+        setInput={setInput}
         setSearchType={setSearchType}
         setLowPrice={setLowPrice}
         setHighPrice={setHighPrice}

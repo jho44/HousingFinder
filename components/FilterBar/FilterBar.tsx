@@ -2,27 +2,16 @@ import {
   Dispatch,
   SetStateAction,
   useState,
-  useEffect,
-  useRef,
   forwardRef,
   ForwardedRef,
   Fragment,
-  type MutableRefObject,
 } from "react";
 import Image from "next/image";
 import dayjs from "dayjs";
-import { getSearchResults, postsToSearchResults } from "@/lib/utils";
 import Dropdown from "../Dropdowns/Dropdown";
 import TypeDropdownPane from "../Dropdowns/TypeDropdownPane";
-import { useDebounce } from "../../hooks/useDebounce";
 import styles from "./FilterBar.module.css";
-import type {
-  MoveDate,
-  Gender,
-  Post,
-  SearchResult,
-  PostTypeFilter,
-} from "../../types";
+import type { MoveDate, Gender, PostTypeFilter } from "../../types";
 
 import { Calendar } from "primereact/calendar";
 
@@ -46,81 +35,43 @@ const genderLabels = [
 ];
 const FilterBar = forwardRef(function FilterBar(
   {
-    allPosts,
-    posts,
     lowPrice,
     highPrice,
     searchType,
     moveInDate,
     moveOutDate,
     gender,
-    debouncedInputRef,
-    setPosts,
+    input,
     setSearchType,
     setLowPrice,
     setHighPrice,
     setMoveInDate,
     setMoveOutDate,
     setGender,
+    setInput,
   }: {
-    allPosts: Post[];
-    posts: Post[];
     lowPrice: string;
     highPrice: string;
     searchType: string;
     moveInDate: MoveDate;
     moveOutDate: MoveDate;
     gender: Gender;
-    debouncedInputRef: MutableRefObject<string>;
-    setPosts: Dispatch<SetStateAction<SearchResult>>;
+    input: string;
     setSearchType: Dispatch<SetStateAction<PostTypeFilter>>;
     setLowPrice: Dispatch<SetStateAction<string>>;
     setHighPrice: Dispatch<SetStateAction<string>>;
     setMoveInDate: Dispatch<SetStateAction<MoveDate>>;
     setMoveOutDate: Dispatch<SetStateAction<MoveDate>>;
     setGender: Dispatch<SetStateAction<Gender>>;
+    setInput: Dispatch<SetStateAction<string>>;
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
-  const [input, setInput] = useState("");
-  const debouncedInput = useDebounce(input, 1000);
-  const updatedPosts = useRef(true);
-
   const [searchTypeOpen, setSearchTypeOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   const [moveInOpen, setMoveInOpen] = useState(false);
   const [moveOutOpen, setMoveOutOpen] = useState(false);
   const [genderOpen, setGenderOpen] = useState(false);
-
-  useEffect(() => {
-    if (updatedPosts.current) return;
-    updatedPosts.current = true;
-    debouncedInputRef.current = debouncedInput;
-    if (debouncedInput) {
-      const newSearchResults = getSearchResults(debouncedInput, posts);
-      setPosts(newSearchResults);
-    } else setPosts(postsToSearchResults(allPosts));
-  }, [debouncedInputRef, debouncedInput, posts, setPosts, allPosts]);
-
-  // TODO: tentatively ready to delete scrollX stuff
-  const [scrollX, setScrollX] = useState(0);
-  const contentEl = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const currContentEl = contentEl.current;
-    if (!currContentEl) return;
-    const handleScroll = (e: Event) => {
-      if (e.currentTarget instanceof HTMLDivElement) {
-        setScrollX(e.currentTarget.scrollLeft);
-      }
-    };
-
-    currContentEl.addEventListener("scroll", handleScroll);
-    return () => currContentEl.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const barStyles = {
-    "--scroll-x": `-${scrollX}px`,
-  } as React.CSSProperties;
 
   const filters = [
     {
@@ -170,9 +121,8 @@ const FilterBar = forwardRef(function FilterBar(
     <div
       ref={ref}
       className="z-10 fixed w-screen bg-dark-950 border-b-[1px] border-b-dark-700 flex flex-col py-2.5 px-3 gap-3"
-      style={barStyles}
     >
-      <div ref={contentEl} className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 flex-wrap">
         <div className="flex items-center gap-2 px-3 rounded-[50px] bg-dark-700 text-dark-200">
           <Image
             src="/icons/magnifying-glass.svg"
@@ -185,7 +135,6 @@ const FilterBar = forwardRef(function FilterBar(
             placeholder="Search by keyword"
             value={input}
             onChange={(e) => {
-              updatedPosts.current = false;
               setInput(e.target.value);
             }}
           />
