@@ -71,5 +71,5 @@ export function isWithinXDays(
 ) {
   const userStart = userDate.subtract(numDays, "day");
   const userEnd = userDate.add(numDays, "day");
-  return postDate.isBetween(userStart, userEnd, "day", "[]");
+  return postDate.isBetween(userStart, userEnd, "date", "[]");
 }

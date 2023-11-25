@@ -4,8 +4,8 @@ export type MoveDate = Dayjs | null;
 
 export type Gender = "male" | "female" | null;
 
-export type PostType = "searching_for" | "offering";
-export type PostTypeFilter = PostType | "all";
+export type PostType = "searching_for_lease" | "offering_lease";
+export type PostTypeFilter = "searching_for" | "offering" | "all";
 
 export type Post = {
   id: string;
@@ -16,7 +16,7 @@ export type Post = {
     id: string | null;
     profileImgUrl: string;
   };
-  post_type: "searching_for_lease" | "offering_lease";
+  post_type: PostType;
   duration?: {
     start?: string;
     end?: string;

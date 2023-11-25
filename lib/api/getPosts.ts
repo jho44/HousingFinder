@@ -1,9 +1,17 @@
-import type { Gender, MoveDate, PostTypeFilter } from "@/types.ts";
+import type { Gender, PostTypeFilter } from "@/types.ts";
 import { sfCollection2 } from "./mongo.ts";
 import { PAGE_SIZE } from "@/lib/constants";
-import { convertToDate, isWithinXDays } from "../utils.ts";
 import { search } from "fast-fuzzy";
 import { FUZZY_SEARCH_OPTS } from "../constants";
+import {
+  satisfiesGender,
+  satisfiesHighPrice,
+  satisfiesLowPrice,
+  satisfiesMoveInDate,
+  satisfiesMoveOutDate,
+  satisfiesSearchType,
+} from "../filterUtils.ts";
+import dayjs from "dayjs";
 
 /*
 plan: start from pageNum
@@ -26,8 +34,8 @@ export default async function getPosts({
   searchType?: PostTypeFilter;
   lowPrice?: string;
   highPrice?: string;
-  moveInDate?: MoveDate;
-  moveOutDate?: MoveDate;
+  moveInDate?: string | null;
+  moveOutDate?: string | null;
   gender?: Gender;
   keyword?: string;
 }) {
@@ -41,42 +49,32 @@ export default async function getPosts({
 
   const results = [];
   let numMatches = 0;
-  let numResults = 0;
   for await (const doc of query) {
-    const searchTypeCond =
-      searchType === "all" ||
-      (doc.post_type === "searching_for_lease" &&
-        searchType === "searching_for") ||
-      (doc.post_type === "offering_lease" && searchType === "offering");
+    const searchTypeCond = satisfiesSearchType(searchType, doc.post_type);
 
-    const lowPriceNum = lowPrice ? parseInt(lowPrice, 10) : 0;
-    const lowPriceCond =
-      !lowPriceNum || lowPriceNum <= (doc.price_range?.low ?? Infinity);
+    const lowPriceCond = satisfiesLowPrice(
+      lowPrice,
+      doc.price_range?.low,
+      doc.price_range?.high,
+    );
 
-    const highPriceNum = highPrice ? parseInt(highPrice, 10) : Infinity;
-    const highPriceCond =
-      !highPriceNum || (doc.price_range?.high ?? 0) <= highPriceNum;
+    const highPriceCond = satisfiesHighPrice(
+      highPrice,
+      doc.price_range?.low,
+      doc.price_range?.high,
+    );
 
-    let moveInDateCond;
-    if (!moveInDate || !doc.duration?.start) moveInDateCond = true;
-    else {
-      const postMoveInDate = convertToDate(doc.duration?.start, true);
-      if (postMoveInDate && !isWithinXDays(moveInDate, postMoveInDate, 1))
-        moveInDateCond = true;
-      else moveInDateCond = false;
-    }
+    const moveInDateCond = satisfiesMoveInDate(
+      moveInDate ? dayjs(moveInDate) : null,
+      doc.duration?.start,
+    );
 
-    let moveOutDateCond;
-    if (!moveOutDate || !doc.duration?.end) moveOutDateCond = true;
-    else {
-      const postMoveOutDate = convertToDate(doc.duration?.end, true);
-      if (postMoveOutDate && !isWithinXDays(moveOutDate, postMoveOutDate, 1))
-        moveOutDateCond = true;
-      else moveOutDateCond = false;
-    }
+    const moveOutDateCond = satisfiesMoveOutDate(
+      moveOutDate ? dayjs(moveOutDate) : null,
+      doc.duration?.end,
+    );
 
-    const genderCond =
-      !gender || !doc.desired_gender || gender === doc.desired_gender;
+    const genderCond = satisfiesGender(gender, doc.desired_gender);
 
     const keywordCond =
       !keyword ||
@@ -93,17 +91,17 @@ export default async function getPosts({
       moveOutDateCond &&
       genderCond &&
       keywordCond
-    )
+    ) {
       numMatches++;
+    }
 
     results.push(doc);
-    numResults++;
 
-    if (numMatches === PAGE_SIZE && numResults % PAGE_SIZE === 0) break;
+    if (numMatches >= PAGE_SIZE && results.length % PAGE_SIZE === 0) break;
   }
 
   return {
     results,
-    lastPageNum: pageNum + numResults / PAGE_SIZE,
+    nextPageNum: pageNum + results.length / PAGE_SIZE,
   };
 }
