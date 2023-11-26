@@ -7,7 +7,7 @@ import {
   Dispatch,
 } from "react";
 import Image from "next/image";
-import useWindowSize from "@/hooks/useWindowSize";
+import useWindowSize from "@/lib/hooks/useWindowSize";
 
 export default function Dropdown({
   defaultLabel,
@@ -85,7 +85,7 @@ export default function Dropdown({
     visibility: open ? ("visible" as const) : ("hidden" as const),
   };
   return (
-    <div className="relative">
+    <div className="h-fit">
       <div
         ref={dropdownBtn}
         onClick={() => setOpen((o) => !o)}

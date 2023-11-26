@@ -3,9 +3,9 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import { GRP_ID } from "@/lib/constants";
 
-import Spinner from "../components/Spinner/Spinner";
+import Spinner from "./Spinner/Spinner";
 
-import type { Post, SearchResult } from "../types";
+import type { Post, SearchResult } from "@/lib/types";
 
 const Posts = forwardRef(function Posts(
   {

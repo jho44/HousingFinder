@@ -1,9 +1,9 @@
-import type { Post, SearchResult } from "@/types";
+import type { Post, SearchResult } from "@/lib/types";
 import { search } from "fast-fuzzy";
 import dayjs, { type Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isBetween from "dayjs/plugin/isBetween";
-import { FUZZY_SEARCH_OPTS } from "./constants";
+import { FUZZY_SEARCH_OPTS } from "../constants";
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
 

@@ -33,7 +33,6 @@ frontend
   - [ ] clean up styles
 - [ ] transitions / animations
   - [ ] make the feed move downwards whenever a popover opens
-- [ ] highlight keywords searched
 - [ ] update page immediately when new post comes in
 - [ ] enable hiding posts
   - [ ] need another section to show hidden ones

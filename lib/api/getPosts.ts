@@ -1,4 +1,4 @@
-import type { Gender, PostTypeFilter } from "@/types.ts";
+import type { Gender, PostTypeFilter } from "@/lib/types.ts";
 import { sfCollection2 } from "./mongo.ts";
 import { PAGE_SIZE } from "@/lib/constants";
 import { search } from "fast-fuzzy";
@@ -10,7 +10,7 @@ import {
   satisfiesMoveInDate,
   satisfiesMoveOutDate,
   satisfiesSearchType,
-} from "../filterUtils.ts";
+} from "@/lib/utils/filter";
 import dayjs from "dayjs";
 
 /*

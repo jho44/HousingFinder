@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import Dropdown from "../Dropdowns/Dropdown";
 import TypeDropdownPane from "../Dropdowns/TypeDropdownPane";
 import styles from "./FilterBar.module.css";
-import type { MoveDate, Gender, PostTypeFilter } from "../../types";
+import type { MoveDate, Gender, PostTypeFilter } from "@/lib/types";
 
 import { Calendar } from "primereact/calendar";
 

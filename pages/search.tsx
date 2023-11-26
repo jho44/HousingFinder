@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import getPosts from "@/lib/api/getPosts";
 import { PAGE_SIZE } from "@/lib/constants";
-import { postsToSearchResults, getSearchResults } from "@/lib/utils";
+import { getSearchResults } from "@/lib/utils/general";
 
-import FilterBar from "../components/FilterBar/FilterBar";
+import FilterBar from "@/lib/components/FilterBar/FilterBar";
 
-import styles from "../components/SearchSection.module.css";
-
-import { useDebounce } from "../hooks/useDebounce";
-import type { Gender, MoveDate, Post, PostTypeFilter } from "../types";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+import type { Gender, MoveDate, Post, PostTypeFilter } from "@/lib/types";
 import {
   satisfiesGender,
   satisfiesHighPrice,
@@ -16,8 +14,8 @@ import {
   satisfiesMoveInDate,
   satisfiesMoveOutDate,
   satisfiesSearchType,
-} from "@/lib/filterUtils";
-import Posts from "@/components/Posts";
+} from "@/lib/utils/filter";
+import Posts from "@/lib/components/Posts";
 
 // This gets called on every request
 export async function getServerSideProps() {
@@ -206,7 +204,7 @@ export default function Search({ firstPagePosts }: { firstPagePosts: Post[] }) {
   if (!allPosts) return <div>Loading...</div>;
   return (
     <div
-      className={`${styles["search-section"]} h-full overflow-y-scroll`}
+      className="h-full overflow-y-scroll"
       ref={contentEl}
     >
       <FilterBar

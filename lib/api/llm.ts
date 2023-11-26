@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { ChatCompletionUserMessageParam } from "openai/resources/chat/completions.mjs";
-import { trimWhitespaceOnAllLines } from "../utils.ts";
+import { trimWhitespaceOnAllLines } from "@/lib/utils/general";
 
 const { OPENAI_API_KEY } = process.env;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });

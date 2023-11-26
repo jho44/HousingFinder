@@ -1,5 +1,5 @@
-import type { Gender, MoveDate, PostType, PostTypeFilter } from "@/types";
-import { convertToDate, isWithinXDays } from "./utils";
+import type { Gender, MoveDate, PostType, PostTypeFilter } from "@/lib/types";
+import { convertToDate, isWithinXDays } from "./general";
 
 export const satisfiesSearchType = (
   desiredSearchType: PostTypeFilter,
