@@ -40,7 +40,7 @@ const Posts = forwardRef(function Posts(
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {post.author.id ? (
+                  {/* {post.author.id ? (
                     <a
                       href={`https://www.facebook.com/${post.author.id}`}
                       target="_blank"
@@ -61,7 +61,7 @@ const Posts = forwardRef(function Posts(
                       width={40}
                       className="rounded-full w-10 h-10"
                     />
-                  )}
+                  )} */}
                   <div className="flex flex-col gap-0.5">
                     {post.author.id ? (
                       <a
