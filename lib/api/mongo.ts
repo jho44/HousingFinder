@@ -7,8 +7,6 @@ export const mongoClient = new MongoClient(mongoUrl);
 
 const dbName = "UclaHousing";
 export const db = mongoClient.db(dbName);
-export const collection = db.collection("ExtractedEntities");
-export const sfCollection = db.collection("SFEntities");
 export const sfCollection2 = db.collection("SFEntities2");
 
 export async function connectToMongo() {
